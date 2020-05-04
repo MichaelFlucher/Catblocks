@@ -3,6 +3,8 @@ name: Catblocks Pull Request Action
 on: 
   pull_request:
     types: [opened, reopened, synchronize, edited]
+  push:
+    branches: [ develop ] 
 
 jobs:
   testing:

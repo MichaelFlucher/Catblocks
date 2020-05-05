@@ -114,5 +114,10 @@ img {
     color: yellow;
 }
 .test {
-    color: green;
+
+    color: red;
+}
+
+.no-conflict-please {
+    color: yellow;
 }

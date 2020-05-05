@@ -23,7 +23,7 @@ git clone "$REPO" "$REPONAME"
 cd "${REPOHOME}"
 git fetch origin "$POCOMMIT"
 git checkout "$POCOMMIT"
-
+#comment
 # install everything properly
 yarn install
 yarn run render:build

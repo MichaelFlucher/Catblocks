@@ -2,19 +2,19 @@ name: Catblocks Pull Request Action
 
 on: 
   pull_request:
-    types: [opened, reopened, synchronize, labeled]
+    types: [opened, reopened, synchronize]
 
 jobs:
   testing:
-    runs-on: ubuntu-latest
     name: Run tests
+    if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ReTest' }} # only fire with label 'ReTest'
+    runs-on: ubuntu-latest
     steps:
       - name: Dump Github context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
       - name: Checkout repo
-        if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ReTest' }} # only fire with label 'ReTest'
         uses: actions/checkout@v2
       - name: Run jest test action
         uses: ./jest-testing-action/       
@@ -29,8 +29,9 @@ jobs:
           path: /home/runner/work/Catblocks/Catblocks/catblocksTestReport/
       
   uploadDocker:
-    runs-on: ubuntu-latest
     name: Create new artifact for PO review
+    if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ReTest' }} # only fire with label 'ReTest'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2

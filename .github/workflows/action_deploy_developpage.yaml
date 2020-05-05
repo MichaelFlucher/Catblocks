@@ -1,4 +1,4 @@
-name: Deploy develop page to gh-pages
+name: Catblocks Merge Action
 
 on:
   push:
@@ -7,7 +7,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Deploy new Testing-Page
     steps:
-    - uses: actions/checkout@v2
-    - name: Build Project and push to gh-pages
-      uses: ./gh-pages-deploy-action/
+      - uses: actions/checkout@v2
+      - name: Build Project and push to gh-pages
+        uses: ./gh-pages-deploy-action/
+  
+  rerunTests:
+    runs-on: ubuntu-latest
+    name: Restart all Pull Request Tests
+    steps:
+      - name: Dump Github context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"

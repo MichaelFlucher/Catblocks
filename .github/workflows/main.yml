@@ -9,7 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Run tests
     steps:
+      - name: Dump Github context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       - name: Checkout repo
+        if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ReTest' }} # only fire with label 'ReTest'
         uses: actions/checkout@v2
       - name: Run jest test action
         uses: ./jest-testing-action/       

@@ -110,7 +110,9 @@ img {
 .catblocks-object-sound-item {
     width: 100%;
 }
-
+.test2 {
+    color: yellow;
+}
 .test {
     color: red;
 }
@@ -121,4 +123,5 @@ img {
 
 .test346{
     color: blue;
+    color: green;
 }

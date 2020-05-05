@@ -9,7 +9,7 @@ on:
 jobs:
   testing:
     name: Run tests
-    if: github.event.issue.pull_request != '' && contains(github.event.comment.body, '/retest')
+    if: github.event != 'issue' || github.event.issue.pull_request != '' && contains(github.event.comment.body, '/retest')
     runs-on: ubuntu-latest
     steps:
       - name: Dump Github context
@@ -32,9 +32,12 @@ jobs:
       
   uploadDocker:
     name: Create new artifact for PO review
-    if: github.event.issue.pull_request != '' && contains(github.event.comment.body, '/retest')
     runs-on: ubuntu-latest
     steps:
+      - name: Dump Github context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       - name: Checkout
         uses: actions/checkout@v2
       - name: Prepare artifact entrypoint.sh file

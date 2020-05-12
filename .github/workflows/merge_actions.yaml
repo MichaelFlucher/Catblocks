@@ -22,7 +22,7 @@ jobs:
           github-token: ${{ secrets.PAT }} # PAT has to be defined in Repository > Settings > Secrets
           script: |
             const labelName = "run-tests";
-
+// hi
             try {              
               const owner = context.payload.repository.owner.name;
               const repo = context.payload.repository.name;
@@ -67,7 +67,7 @@ jobs:
                 }
               } 
 
-              core.info(`Triggered ${result.data.length} PRs`);
+              core.info(`${new Date()} - Triggered ${result.data.length} PRs`);
             } catch (error) {
               core.setFailed(`Action failed with error ${error}`);
             }

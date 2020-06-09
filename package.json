@@ -23,7 +23,7 @@
     "translate": "node i18n/create_json.js && node i18n/create_msg.js",
     "clean": "rimraf dist ; rimraf release",
     "release": "yarn initiate && webpack --config release.config.js",
-    "lint:es": "yarn eslint --ext .js ./",
+    "lint:es": "yarn eslint --ext .js ./ --max-warnings 0",
     "lint:pr": "yarn prettier -c **.js",
     "lint": "yarn lint:es && yarn lint:pr",
     "lint:fix": "yarn lint:es --fix && yarn lint:pr --write"

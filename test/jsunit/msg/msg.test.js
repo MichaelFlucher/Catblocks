@@ -53,7 +53,7 @@ describe('Filesystem msg tests', () => {
 
     for (const langfile of CATBLOCKS_MSGS) {
       const lang = langfile.split('.')[0];
-      result = (langs[lang] != null);
+      result = langs[lang] != null;
       if (!result) {
         break;
       }
@@ -78,7 +78,7 @@ describe('Webview test', () => {
         const retVal = JSON.stringify(
           obj,
           (key, value) =>
-            typeof value === "object" && value !== null
+            typeof value === 'object' && value !== null
               ? cache.includes(value)
                 ? undefined // Duplicate reference found, discard key
                 : cache.push(value) && value // Store value in our collection
@@ -99,14 +99,10 @@ describe('Webview test', () => {
       return Test.Playground.setLocale(pLanguage);
     }, languageToTest);
 
-
     let result = false;
-    const [
-      toolboxBlocksJSON,
-      blocklyBlocksJSON
-    ] = await page.evaluate(() => {
+    const [toolboxBlocksJSON, blocklyBlocksJSON] = await page.evaluate(() => {
       const toolboxBlocks = Test.Toolbox.workspace.getAllBlocks();
-      let blockArray = [];
+      const blockArray = [];
 
       for (const block of toolboxBlocks) {
         const msgBlockParts = block.svgGroup_.querySelectorAll('g:not(.blocklyEditableText) > text.blocklyText');
@@ -123,16 +119,13 @@ describe('Webview test', () => {
           msgBlockParts: msgs
         });
       }
-      
-      return [
-        window.shallowJSON(blockArray),
-        window.shallowJSON(Test.Blockly.Bricks)
-      ];
+
+      return [window.shallowJSON(blockArray), window.shallowJSON(Test.Blockly.Bricks)];
     });
 
     const toolboxBlocks = JSON.parse(toolboxBlocksJSON);
     const blocklyBlocks = JSON.parse(blocklyBlocksJSON);
-        
+
     for (const block of toolboxBlocks) {
       const blockName = block.type;
       const msgKeys = Object.keys(blocklyBlocks[blockName])
@@ -164,79 +157,95 @@ describe('Webview test', () => {
     const languageToTest = 'de';
     const languageObject = JSON.parse(utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${languageToTest}.json`));
 
-    expect(
-      await page.evaluate(
-        (languageObject, languageToTest) => {
-          let failedLoading = false;
+    await page.evaluate(() => {
+      return Test.Playground.setLocale(Test.Blockly.CatblocksMsgs.getCurrentLocale());
+    });
 
-          return Test.Playground.setLocale(Test.Blockly.CatblocksMsgs.getCurrentLocale()).then(() => {
-            return Test.Playground.setLocale(languageToTest).then(() => {
-              Test.Toolbox.workspace.getAllBlocks().forEach(block => {
-                const blockName = block.type;
-                const msgKeys = Object.keys(Test.Blockly.Bricks[blockName])
-                  .filter(key => key.indexOf('message') > -1)
-                  .map(key => Test.Blockly.Bricks[blockName][key])
-                  .filter(value => value.startsWith('%{BKY_'));
+    await page.evaluate(pLanguage => {
+      return Test.Playground.setLocale(pLanguage);
+    }, languageToTest);
 
-                const msgDefParts = msgKeys.flatMap(key => {
-                  const msgKey = key.split('%{BKY_').pop().split('}')[0];
-                  return languageObject[msgKey]
-                    .split(/%\d/g)
-                    .map(v => v.trim())
-                    .filter(v => v.length > 0);
-                });
+    let result = false;
+    const [toolboxBlocksJSON, blocklyBlocksJSON] = await page.evaluate(() => {
+      const toolboxBlocks = Test.Toolbox.workspace.getAllBlocks();
+      const blockArray = [];
 
-                const msgBlockParts = block.svgGroup_.querySelectorAll(
-                  'g:not(.blocklyEditableText) > text.blocklyText'
-                );
-                for (let idx = 0; idx < msgBlockParts.length; idx++) {
-                  const msgBlockPart = msgBlockParts[idx];
-                  const testString = msgBlockPart.innerHTML.replace(/&nbsp;/g, '').replace(/…$/, '');
-                  const refString = msgDefParts[idx].replace(/ /g, '');
-                  if (!refString.startsWith(testString)) {
-                    failedLoading = true;
-                    return failedLoading;
-                  }
-                }
-              });
-            });
-          });
-        },
-        languageObject,
-        languageToTest
-      )
-    ).toBeFalsy();
+      for (const block of toolboxBlocks) {
+        const msgBlockParts = block.svgGroup_.querySelectorAll('g:not(.blocklyEditableText) > text.blocklyText');
+
+        const msgs = [];
+        for (let idx = 0; idx < msgBlockParts.length; idx++) {
+          const msgBlockPart = msgBlockParts[idx];
+          const testString = msgBlockPart.innerHTML.replace(/&nbsp;/g, '').replace(/…$/, '');
+          msgs.push(testString);
+        }
+
+        blockArray.push({
+          type: block.type,
+          msgBlockParts: msgs
+        });
+      }
+
+      return [window.shallowJSON(blockArray), window.shallowJSON(Test.Blockly.Bricks)];
+    });
+
+    const toolboxBlocks = JSON.parse(toolboxBlocksJSON);
+    const blocklyBlocks = JSON.parse(blocklyBlocksJSON);
+
+    for (const block of toolboxBlocks) {
+      const blockName = block.type;
+      const msgKeys = Object.keys(blocklyBlocks[blockName])
+        .filter(key => key.indexOf('message') > -1)
+        .map(key => blocklyBlocks[blockName][key])
+        .filter(value => value.startsWith('%{BKY_'));
+
+      const msgDefParts = msgKeys.flatMap(key => {
+        const msgKey = key.split('%{BKY_').pop().split('}')[0];
+        return languageObject[msgKey]
+          .split(/%\d+/g)
+          .map(v => v.trim())
+          .filter(v => v.length > 0);
+      });
+
+      for (let idx = 0; idx < block.msgBlockParts.length; idx++) {
+        const testString = block.msgBlockParts[idx];
+        const refString = msgDefParts[idx].replace(/ /g, '');
+        if (!refString.startsWith(testString)) {
+          result = true;
+        }
+      }
+    }
+
+    expect(result).toBeFalsy();
   });
 
   test('Changing language on share page is working', async () => {
     const languageToTest = 'de';
     const testLanguageObject = JSON.parse(utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${languageToTest}.json`));
     const defaultLanguage = 'en';
-    const defaultLanguageObject = JSON.parse(
-      utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${defaultLanguage}.json`)
-    );
+    const defaultLanguageObject = JSON.parse(utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${defaultLanguage}.json`));
 
-    expect(
-      await page.evaluate(
-        (testLanguageObject, defaultLanguageObject, languageToTest) => {
-          const defaultBlock = Test.Share.workspace.newBlock('WaitBrick');
-          defaultBlock.initSvg();
-          defaultBlock.render(false);
-          return Test.Blockly.CatblocksMsgs.setLocale(languageToTest).then(() => {
-            const testBlock = Test.Share.workspace.newBlock('WaitBrick');
-            testBlock.initSvg();
-            testBlock.render(false);
-            return (
-              defaultLanguageObject['CONTROL_WAIT'].startsWith(defaultBlock.getFieldValue()) &&
-              testLanguageObject['CONTROL_WAIT'].startsWith(testBlock.getFieldValue())
-            );
-          });
-        },
-        testLanguageObject,
-        defaultLanguageObject,
-        languageToTest
-      )
-    ).toBeTruthy();
+    const defaultBlockValue = await page.evaluate(() => {
+      const defaultBlock = Test.Share.workspace.newBlock('WaitBrick');
+      defaultBlock.initSvg();
+      defaultBlock.render(false);
+      return defaultBlock.getFieldValue();
+    });
+
+    await page.evaluate((pLanguageToTest) => {
+      return Test.Blockly.CatblocksMsgs.setLocale(pLanguageToTest);
+    }, languageToTest);
+
+    const testBlockValue = await page.evaluate(() => {
+      const testBlock = Test.Share.workspace.newBlock('WaitBrick');
+      testBlock.initSvg();
+      testBlock.render(false);
+      return testBlock.getFieldValue();
+    });
+
+    const result = defaultLanguageObject['CONTROL_WAIT'].startsWith(defaultBlockValue) && testLanguageObject['CONTROL_WAIT'].startsWith(testBlockValue);
+
+    expect(result).toBeTruthy();
   });
 });
 
@@ -259,7 +268,7 @@ describe('share displays language of UI elements correctly', () => {
     expect(result).toBeTruthy();
   });
 
-  test('check >de< language of tabs and error messages of scripts, looks and sounds', async () => {
+  test('check >de< language of an simple rendered program', async () => {
     const testLanguage = 'de';
     const testLanguageObject = JSON.parse(utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${testLanguage}.json`));
     await page.evaluate(pTestLanguage => {

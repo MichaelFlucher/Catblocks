@@ -96,7 +96,7 @@ describe('WebView Block tests', () => {
         const retVal = JSON.stringify(
           obj,
           (key, value) =>
-            typeof value === "object" && value !== null
+            typeof value === 'object' && value !== null
               ? cache.includes(value)
                 ? undefined // Duplicate reference found, discard key
                 : cache.push(value) && value // Store value in our collection
@@ -151,7 +151,7 @@ describe('WebView Block tests', () => {
         }
         return window.shallowJSON(Test.Toolbox.workspace.blockDB_);
       });
-      
+
       let result = false;
       try {
         const block = JSON.parse(blockJSON);
@@ -189,7 +189,7 @@ describe('WebView Block tests', () => {
 
       try {
         const bricks = JSON.parse(blockJSON);
-        
+
         const allBlocks = (() => {
           const blocks = [];
           Object.keys(BLOCKS).forEach(categoryName => {
@@ -242,7 +242,7 @@ describe('WebView Block tests', () => {
         return Array.from(document.querySelectorAll('svg.blocklyFlyout image')).map(node => node.href.baseVal);
       });
 
-      const statusCodes = await page.evaluate(async (hrefs) => {
+      const statusCodes = await page.evaluate(async hrefs => {
         const codes = [];
         for (const href of hrefs) {
           const res = await fetch(href);
@@ -261,7 +261,7 @@ describe('WebView Block tests', () => {
       const languageObject = JSON.parse(utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${languageToTest}.json`));
       const blockText = languageObject['LOOKS_CHANGEBRIGHTHNESSBY'].replace('%1', '').replace('%2', '').trim();
 
-      const [ blockFieldValue, refValue, value ] = await page.evaluate(() => {
+      const [blockFieldValue, refValue, value] = await page.evaluate(() => {
         const block = Test.Playground.workspace.newBlock('ChangeBrightnessByNBrick');
         block.initSvg();
         block.render(false);
@@ -269,9 +269,7 @@ describe('WebView Block tests', () => {
         const refValue = Test.Blockly.Bricks['ChangeBrightnessByNBrick'].args0[0].text;
         const value = block.inputList[0].fieldRow[1].getText();
 
-        return [
-          block.getFieldValue(), refValue, value 
-        ];
+        return [block.getFieldValue(), refValue, value];
       });
       const result = blockFieldValue === blockText && refValue === value;
       expect(result).toBeTruthy();
@@ -284,19 +282,17 @@ describe('WebView Block tests', () => {
 
       const valueToSet = '-1';
 
-      const [ blockFieldValue, value ] = await page.evaluate(pValue => {
+      const [blockFieldValue, value] = await page.evaluate(pValue => {
         const block = Test.Playground.workspace.newBlock('ChangeBrightnessByNBrick');
         block.initSvg();
         block.render(false);
         //set scale value
-        
+
         block.inputList[0].fieldRow[1].setValue(pValue);
         const value = block.inputList[0].fieldRow[1].getValue().toString();
-        return [
-          block.getFieldValue(), value 
-        ];
+        return [block.getFieldValue(), value];
       }, valueToSet);
-      const result = (blockFieldValue === blockText && valueToSet === value);
+      const result = blockFieldValue === blockText && valueToSet === value;
       expect(result).toBeTruthy();
     });
 
@@ -308,41 +304,38 @@ describe('WebView Block tests', () => {
       const valueToSet = '37';
       const desiredBlockText = blockText.replace('%1', valueToSet).replace('%2', '').replace(/\s/g, '');
 
-      const [ value, blockContent ] = await page.evaluate(pValue => {
+      const [value, blockContent] = await page.evaluate(pValue => {
         const block = Test.Playground.workspace.newBlock('WaitBrick');
         block.initSvg();
         block.render(false);
         //set scale value
-        
+
         block.inputList[0].fieldRow[1].setValue(pValue);
         const value = block.inputList[0].fieldRow[1].getValue().toString();
-        
+
         //check if field text matches when block is in workspace
-        return [ value, block.svgGroup_.textContent.replace(/\s/g, '') ];
+        return [value, block.svgGroup_.textContent.replace(/\s/g, '')];
       }, valueToSet);
-      const result = (valueToSet === value && desiredBlockText === blockContent);
+      const result = valueToSet === value && desiredBlockText === blockContent;
       expect(result).toBeTruthy();
     });
 
     test('check if zebra is working properly', async () => {
-      const [ color1, color2, color3 ] = await page.evaluate(() => {
+      const [color1, color2, color3] = await page.evaluate(() => {
         const topBlock = Test.Playground.workspace.newBlock('WaitBrick');
         topBlock.childBlocks_.push(Test.Playground.workspace.newBlock('WaitBrick'));
         topBlock.childBlocks_[0].childBlocks_.push(Test.Playground.workspace.newBlock('WaitBrick'));
         topBlock.childBlocks_[0].childBlocks_[0].childBlocks_.push(Test.Playground.workspace.newBlock('WaitBrick'));
         Test.Playground.zebra();
-        return [
-          topBlock.colour_, topBlock.childBlocks_[0].colour_, topBlock.childBlocks_[0].childBlocks_[0].colour_];
+        return [topBlock.colour_, topBlock.childBlocks_[0].colour_, topBlock.childBlocks_[0].childBlocks_[0].colour_];
       });
 
-      const result = (color1 === color3 &&
-        color1 !== color2);
+      const result = color1 === color3 && color1 !== color2;
 
       expect(result).toBeTruthy();
     });
-    
-    test('Block arguments are rendered properly', async () => {
 
+    test('Block arguments are rendered properly', async () => {
       const allRenderedBlocksJSON = await page.evaluate(() => {
         const blocks = Test.Toolbox.workspace.getAllBlocks();
 
@@ -356,16 +349,13 @@ describe('WebView Block tests', () => {
       let result = true;
       const allRenderedBlocks = JSON.parse(allRenderedBlocksJSON);
       for (const renderedBlock of allRenderedBlocks) {
-  
         let returnStatus = false;
         for (const categoryName in BLOCKS) {
           if (Object.hasOwnProperty.call(BLOCKS, categoryName)) {
-  
             for (const blockName in BLOCKS[categoryName]) {
               if (Object.hasOwnProperty.call(BLOCKS[categoryName], blockName)) {
-  
                 const jsBlock = BLOCKS[categoryName][blockName];
-                
+
                 //get args from js-files (in blocks/categories directory)
                 const allJsArguments = [];
                 if (jsBlock['args0'] !== undefined) {
@@ -401,7 +391,7 @@ describe('WebView Block tests', () => {
                 if (allJsArguments.length !== Object.keys(renderedBlock).length) {
                   continue;
                 }
-  
+
                 let check = true;
                 //check if rendered arguments and js arguments are equal
                 for (let argIndex = 0; argIndex < renderedBlock.length; argIndex++) {

@@ -223,7 +223,9 @@ describe('Webview test', () => {
     const languageToTest = 'de';
     const testLanguageObject = JSON.parse(utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${languageToTest}.json`));
     const defaultLanguage = 'en';
-    const defaultLanguageObject = JSON.parse(utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${defaultLanguage}.json`));
+    const defaultLanguageObject = JSON.parse(
+      utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${defaultLanguage}.json`)
+    );
 
     const defaultBlockValue = await page.evaluate(() => {
       const defaultBlock = Test.Share.workspace.newBlock('WaitBrick');
@@ -232,7 +234,7 @@ describe('Webview test', () => {
       return defaultBlock.getFieldValue();
     });
 
-    await page.evaluate((pLanguageToTest) => {
+    await page.evaluate(pLanguageToTest => {
       return Test.Blockly.CatblocksMsgs.setLocale(pLanguageToTest);
     }, languageToTest);
 
@@ -243,7 +245,9 @@ describe('Webview test', () => {
       return testBlock.getFieldValue();
     });
 
-    const result = defaultLanguageObject['CONTROL_WAIT'].startsWith(defaultBlockValue) && testLanguageObject['CONTROL_WAIT'].startsWith(testBlockValue);
+    const result =
+      defaultLanguageObject['CONTROL_WAIT'].startsWith(defaultBlockValue) &&
+      testLanguageObject['CONTROL_WAIT'].startsWith(testBlockValue);
 
     expect(result).toBeTruthy();
   });

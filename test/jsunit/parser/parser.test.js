@@ -6,6 +6,8 @@
 /* eslint no-global-assign:0 */
 'use strict';
 
+const utils = require('../commonUtils');
+
 describe('Parser catroid program tests', () => {
   beforeAll(async () => {
     await page.goto(`${SERVER}`, { waitUntil: 'networkidle0' });
@@ -722,145 +724,426 @@ describe('Catroid to Catblocks parser tests', () => {
 
   describe('Spinner parsing test', () => {
     test('Handle correct spinner value', async () => {
-      expect(
-        await page.evaluate(() => {
-          const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99995</catrobatLanguageVersion></header><settings/><scenes><scene><name>tscene</name><objectList><object type="Sprite" name="tobject"><lookList/><soundList/><scriptList><script type="tscript"><brickList><brick type="DronePlayLedAnimationBrick"><commentedOut>false</commentedOut><ledAnimationName>ARDRONE_LED_ANIMATION_BLINK_GREEN_RED</ledAnimationName></brick></brickList></script></scriptList></object></objectList></scene></scenes></program>`;
-          const programJSON = parser.convertProgramToJSONDebug(xmlString);
-          if (programJSON == null) {
-            return false;
-          }
-          const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
-          return (
-            programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === 'DronePlayLedAnimationBrick' &&
-            formulaMap.size === 1 &&
-            formulaMap.entries().next().value.toString().includes('Blink green red')
-          );
-        })
-      ).toBeTruthy();
+      const droneBrick = 'DronePlayLedAnimationBrick';
+      const i18nCode = 'ARDRONE_LED_ANIMATION_BLINK_GREEN_RED';
+      const xmlString =
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <program>
+        <header>
+          <programName>Test Program</programName>
+          <catrobatLanguageVersion>0.99995</catrobatLanguageVersion>
+        </header>
+        <settings />
+        <scenes>
+          <scene>
+            <name>tscene</name>
+            <objectList>
+              <object type="Sprite" name="tobject">
+                <lookList />
+                <soundList />
+                <scriptList>
+                  <script type="tscript">
+                    <brickList>
+                      <brick type="${droneBrick}">
+                        <commentedOut>false</commentedOut>
+                        <ledAnimationName>${i18nCode}</ledAnimationName>
+                      </brick>
+                    </brickList>
+                  </script>
+                </scriptList>
+              </object>
+            </objectList>
+          </scene>
+        </scenes>
+      </program>`;
+
+      const lang = 'en';
+      const langObj = JSON.parse(
+        utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${lang}.json`)
+      );
+
+      const [
+        programJSON,
+        formulaString
+      ] = await page.evaluate((pXML) => {
+        const programJSON = Test.Parser.convertProgramToJSONDebug(pXML);
+        return [
+          programJSON,
+          programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues.entries().next().value.toString()
+        ];
+      }, xmlString);
+
+      const result = (
+        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === droneBrick &&
+        formulaString.includes(langObj[i18nCode])
+      );
+
+      expect(result).toBeTruthy();
     });
 
     test('Handle invalid spinner value', async () => {
-      expect(
-        await page.evaluate(() => {
-          const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99995</catrobatLanguageVersion></header><settings/><scenes><scene><name>tscene</name><objectList><object type="Sprite" name="tobject"><lookList/><soundList/><scriptList><script type="tscript"><brickList><brick type="DronePlayLedAnimationBrick"><commentedOut>false</commentedOut><ledAnimationName>SOME_VALUE_I_DO_NOT_CARE</ledAnimationName></brick></brickList></script></scriptList></object></objectList></scene></scenes></program>`;
-          const programJSON = parser.convertProgramToJSONDebug(xmlString);
-          if (programJSON == null) {
-            return false;
-          }
-          const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
-          return (
-            programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === 'DronePlayLedAnimationBrick' &&
-            formulaMap.size === 1 &&
-            formulaMap.entries().next().value.toString().includes('SOME_VALUE_I_DO_NOT_CARE')
-          );
-        })
-      ).toBeTruthy();
+      const droneBrick = 'DronePlayLedAnimationBrick';
+      const invalidI18N = 'SOME_VALUE_I_DO_NOT_CARE';
+      const xmlString = 
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <program>
+        <header>
+          <programName>Test Program</programName>
+          <catrobatLanguageVersion>0.99995</catrobatLanguageVersion>
+        </header>
+        <settings />
+        <scenes>
+          <scene>
+            <name>tscene</name>
+            <objectList>
+              <object type="Sprite" name="tobject">
+                <lookList />
+                <soundList />
+                <scriptList>
+                  <script type="tscript">
+                    <brickList>
+                      <brick type="${droneBrick}">
+                        <commentedOut>false</commentedOut>
+                        <ledAnimationName>${invalidI18N}</ledAnimationName>
+                      </brick>
+                    </brickList>
+                  </script>
+                </scriptList>
+              </object>
+            </objectList>
+          </scene>
+        </scenes>
+      </program>`;
+
+      const [
+        programJSON,
+        formulaSize,
+        formulaString
+      ] = await page.evaluate((pXML) => {
+        const programJSON = Test.Parser.convertProgramToJSONDebug(pXML);
+        return [
+          programJSON,
+          programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues.size,
+          programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues.entries().next().value.toString()
+        ];
+      }, xmlString);
+
+      const result = (
+        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === droneBrick &&
+        formulaSize === 1 &&
+        formulaString.includes(invalidI18N)
+      );
+
+      expect(result).toBeTruthy();
     });
 
     test('Handle non-exiting spinner value', async () => {
-      expect(
-        await page.evaluate(() => {
-          const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99995</catrobatLanguageVersion></header><settings/><scenes><scene><name>tscene</name><objectList><object type="Sprite" name="tobject"><lookList/><soundList/><scriptList><script type="tscript"><brickList><brick type="DronePlayLedAnimationBrick"><commentedOut>false</commentedOut></brick></brickList></script></scriptList></object></objectList></scene></scenes></program>`;
-          const programJSON = parser.convertProgramToJSONDebug(xmlString);
-          if (programJSON == null) {
-            return false;
-          }
-          const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
-          return (
-            programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === 'DronePlayLedAnimationBrick' &&
-            formulaMap.entries().next().value == null
-          );
-        })
-      ).toBeTruthy();
+      const droneBrick = 'DronePlayLedAnimationBrick';
+      const xmlString =
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <program>
+        <header>
+          <programName>Test Program</programName>
+          <catrobatLanguageVersion>0.99995</catrobatLanguageVersion>
+        </header>
+        <settings />
+        <scenes>
+          <scene>
+            <name>tscene</name>
+            <objectList>
+              <object type="Sprite" name="tobject">
+                <lookList />
+                <soundList />
+                <scriptList>
+                  <script type="tscript">
+                    <brickList>
+                      <brick type="${droneBrick}">
+                        <commentedOut>false</commentedOut>
+                      </brick>
+                    </brickList>
+                  </script>
+                </scriptList>
+              </object>
+            </objectList>
+          </scene>
+        </scenes>
+      </program>`;
+
+      const [
+        programJSON,
+        formula
+      ] = await page.evaluate((pXML) => {
+        const programJSON = Test.Parser.convertProgramToJSONDebug(pXML);
+        return [
+          programJSON,
+          programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues.entries().next().value
+        ];
+      }, xmlString);
+
+      const result = (
+        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === droneBrick &&
+        formula == null
+      );
+
+      expect(result).toBeTruthy();
     });
   });
 
   describe('UserVariable parsing', () => {
     test('Test of local uservariable parsing', async () => {
-      expect(
-        await page.evaluate(() => {
-          const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99997</catrobatLanguageVersion></header><scenes><scene><name>TestScene</name><objectList><object type="Sprite" name="TestObject"><lookList><look fileName="Space-Panda.png" name="Space-Panda"/></lookList><soundList/><scriptList><script type="StartScript"><brickList><brick type="SetVariableBrick"><commentedOut>false</commentedOut><formulaList><formula category="VARIABLE"><type>NUMBER</type><value>0</value></formula></formulaList><userVariable type="UserVariable" serialization="custom"><userVariable><default><deviceValueKey>dcfdd34b-47fb-4fcc-a1cc-97495abf2563</deviceValueKey><name>tUserVariable</name></default></userVariable></userVariable></brick></script></scriptList></object></objectList></scene></scenes></program>`;
-          const programJSON = parser.convertProgramToJSONDebug(xmlString);
-          if (programJSON == null) {
-            return false;
-          }
-          const block = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name;
-          const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
-          const mapKeys = [];
-          const mapValues = [];
-          formulaMap.forEach(function (value, key) {
-            mapKeys.push(key);
-            mapValues.push(value);
-          });
-          return (
-            mapKeys.length === 2 &&
-            mapValues.length === 2 &&
-            mapKeys[0] === 'VARIABLE' &&
-            mapValues[0] === '0' &&
-            mapKeys[1] === 'DROPDOWN' &&
-            mapValues[1] === 'tUserVariable' &&
-            block === 'SetVariableBrick'
-          );
-        })
-      ).toBeTruthy();
+      const variableBrick = 'SetVariableBrick';
+      const variableName = 'VARIABLE';
+      const firstValue = 0;
+      const userVarialbe = 'tUserVariable';
+
+      const xmlString =
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <program>
+        <header>
+          <programName>Test Program</programName>
+          <catrobatLanguageVersion>0.99997</catrobatLanguageVersion>
+        </header>
+        <scenes>
+          <scene>
+            <name>TestScene</name>
+            <objectList>
+              <object type="Sprite" name="TestObject">
+                <lookList>
+                  <look fileName="Space-Panda.png" name="Space-Panda" />
+                </lookList>
+                <soundList />
+                <scriptList>
+                  <script type="StartScript">
+                    <brickList>
+                      <brick type="${variableBrick}">
+                        <commentedOut>false</commentedOut>
+                        <formulaList>
+                          <formula category="${variableName}">
+                            <type>NUMBER</type>
+                            <value>${firstValue}</value>
+                          </formula>
+                        </formulaList>
+                        <userVariable type="UserVariable" serialization="custom">
+                          <userVariable>
+                            <default>
+                              <deviceValueKey>dcfdd34b-47fb-4fcc-a1cc-97495abf2563</deviceValueKey>
+                              <name>${userVarialbe}</name>
+                            </default>
+                          </userVariable>
+                        </userVariable>
+                      </brick>
+                    </brickList>
+                  </script>
+                </scriptList>
+              </object>
+            </objectList>
+          </scene>
+        </scenes>
+      </program>`;
+
+      const [
+        programJSON,
+        mapKeys,
+        mapValues
+      ] = await page.evaluate((pXML) => {
+        const programJSON = Test.Parser.convertProgramToJSONDebug(pXML);
+
+        const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
+        const mapKeys = [];
+        const mapValues = [];
+        formulaMap.forEach(function (value, key) {
+          mapKeys.push(key);
+          mapValues.push(value);
+        });
+
+        return [
+          programJSON,
+          mapKeys,
+          mapValues
+        ];
+      }, xmlString);
+
+      const result = (
+        variableBrick === programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name &&
+        mapKeys.length === 2 &&
+        mapValues.length === 2 &&
+        mapKeys[0] === variableName &&
+        mapValues[0] == firstValue &&
+        mapKeys[1] === 'DROPDOWN' &&
+        mapValues[1] === userVarialbe 
+      );
+
+      expect(result).toBeTruthy();
     });
 
     test('Test of local empty name uservariable parsing', async () => {
-      expect(
-        await page.evaluate(() => {
-          const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99997</catrobatLanguageVersion></header><scenes><scene><name>TestScene</name><objectList><object type="Sprite" name="TestObject"><lookList><look fileName="Space-Panda.png" name="Space-Panda"/></lookList><soundList/><scriptList><script type="StartScript"><brickList><brick type="SetVariableBrick"><commentedOut>false</commentedOut><formulaList><formula category="VARIABLE"><type>NUMBER</type><value>0</value></formula></formulaList><userVariable type="UserVariable" serialization="custom"><userVariable><default><deviceValueKey>dcfdd34b-47fb-4fcc-a1cc-97495abf2563</deviceValueKey><name></name></default></userVariable></userVariable></brick></script></scriptList></object></objectList></scene></scenes></program>`;
-          const programJSON = parser.convertProgramToJSONDebug(xmlString);
-          if (programJSON == null) {
-            return false;
-          }
-          const block = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name;
-          const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
-          const mapKeys = [];
-          const mapValues = [];
-          formulaMap.forEach(function (value, key) {
-            mapKeys.push(key);
-            mapValues.push(value);
-          });
-          return (
-            mapKeys.length === 2 &&
-            mapValues.length === 2 &&
-            mapKeys[0] === 'VARIABLE' &&
-            mapValues[0] === '0' &&
-            mapKeys[1] === 'DROPDOWN' &&
-            mapValues[1].length === 0 &&
-            block === 'SetVariableBrick'
-          );
-        })
-      ).toBeTruthy();
+      const variableBrick = 'SetVariableBrick';
+      const variableName = 'VARIABLE';
+      const firstValue = 0;
+
+      const xmlString =
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <program>
+        <header>
+          <programName>Test Program</programName>
+          <catrobatLanguageVersion>0.99997</catrobatLanguageVersion>
+        </header>
+        <scenes>
+          <scene>
+            <name>TestScene</name>
+            <objectList>
+              <object type="Sprite" name="TestObject">
+                <lookList>
+                  <look fileName="Space-Panda.png" name="Space-Panda" />
+                </lookList>
+                <soundList />
+                <scriptList>
+                  <script type="StartScript">
+                    <brickList>
+                      <brick type="${variableBrick}">
+                        <commentedOut>false</commentedOut>
+                        <formulaList>
+                          <formula category="${variableName}">
+                            <type>NUMBER</type>
+                            <value>${firstValue}</value>
+                          </formula>
+                        </formulaList>
+                        <userVariable type="UserVariable" serialization="custom">
+                          <userVariable>
+                            <default>
+                              <deviceValueKey>dcfdd34b-47fb-4fcc-a1cc-97495abf2563</deviceValueKey>
+                              <name></name>
+                            </default>
+                          </userVariable>
+                        </userVariable>
+                      </brick>
+                    </brickList>
+                  </script>
+                </scriptList>
+              </object>
+            </objectList>
+          </scene>
+        </scenes>
+      </program>`;
+
+      const [
+        programJSON,
+        mapKeys,
+        mapValues
+      ] = await page.evaluate((pXML) => {
+        const programJSON = Test.Parser.convertProgramToJSONDebug(pXML);
+
+        const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
+        const mapKeys = [];
+        const mapValues = [];
+        formulaMap.forEach(function (value, key) {
+          mapKeys.push(key);
+          mapValues.push(value);
+        });
+
+        return [
+          programJSON,
+          mapKeys,
+          mapValues
+        ];
+      }, xmlString);
+
+      const result = (
+        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === variableBrick &&
+        mapKeys.length === 2 &&
+        mapValues.length === 2 &&
+        mapKeys[0] === variableName &&
+        mapValues[0] == firstValue &&
+        mapKeys[1] === 'DROPDOWN' &&
+        mapValues[1].length === 0
+      );
+
+      expect(result).toBeTruthy();
     });
 
     test('Test of local uservariable parsing without name tag', async () => {
-      expect(
-        await page.evaluate(() => {
-          const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99997</catrobatLanguageVersion></header><scenes><scene><name>TestScene</name><objectList><object type="Sprite" name="TestObject"><lookList><look fileName="Space-Panda.png" name="Space-Panda"/></lookList><soundList/><scriptList><script type="StartScript"><brickList><brick type="SetVariableBrick"><commentedOut>false</commentedOut><formulaList><formula category="VARIABLE"><type>NUMBER</type><value>0</value></formula></formulaList><userVariable type="UserVariable" serialization="custom"><userVariable><default><deviceValueKey>dcfdd34b-47fb-4fcc-a1cc-97495abf2563</deviceValueKey><name/></default></userVariable></userVariable></brick></script></scriptList></object></objectList></scene></scenes></program>`;
-          const programJSON = parser.convertProgramToJSONDebug(xmlString);
-          if (programJSON == null) {
-            return false;
-          }
-          const block = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name;
-          const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
-          const mapKeys = [];
-          const mapValues = [];
-          formulaMap.forEach(function (value, key) {
-            mapKeys.push(key);
-            mapValues.push(value);
-          });
-          return (
-            mapKeys.length === 2 &&
-            mapValues.length === 2 &&
-            mapKeys[0] === 'VARIABLE' &&
-            mapValues[0] === '0' &&
-            mapKeys[1] === 'DROPDOWN' &&
-            mapValues[1].length === 0 &&
-            block === 'SetVariableBrick'
-          );
-        })
-      ).toBeTruthy();
+      const variableBrick = 'SetVariableBrick';
+      const variableName = 'VARIABLE';
+      const firstValue = 0;
+
+      const xmlString =
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <program>
+        <header>
+          <programName>Test Program</programName>
+          <catrobatLanguageVersion>0.99997</catrobatLanguageVersion>
+        </header>
+        <scenes>
+          <scene>
+            <name>TestScene</name>
+            <objectList>
+              <object type="Sprite" name="TestObject">
+                <lookList>
+                  <look fileName="Space-Panda.png" name="Space-Panda" />
+                </lookList>
+                <soundList />
+                <scriptList>
+                  <script type="StartScript">
+                    <brickList>
+                      <brick type="${variableBrick}">
+                        <commentedOut>false</commentedOut>
+                        <formulaList>
+                          <formula category="${variableName}">
+                            <type>NUMBER</type>
+                            <value>${firstValue}</value>
+                          </formula>
+                        </formulaList>
+                        <userVariable type="UserVariable" serialization="custom">
+                          <userVariable>
+                            <default>
+                              <deviceValueKey>dcfdd34b-47fb-4fcc-a1cc-97495abf2563</deviceValueKey>
+                              <name />
+                            </default>
+                          </userVariable>
+                        </userVariable>
+                      </brick>
+                    </brickList>
+                  </script>
+                </scriptList>
+              </object>
+            </objectList>
+          </scene>
+        </scenes>
+      </program>`;
+
+      const [
+        programJSON,
+        mapKeys,
+        mapValues
+      ] = await page.evaluate((pXML) => {
+        const programJSON = Test.Parser.convertProgramToJSONDebug(pXML);
+
+        const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
+        const mapKeys = [];
+        const mapValues = [];
+        formulaMap.forEach(function (value, key) {
+          mapKeys.push(key);
+          mapValues.push(value);
+        });
+
+        return [
+          programJSON,
+          mapKeys,
+          mapValues
+        ];
+      }, xmlString);
+
+      const result = (
+        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === variableBrick &&
+        mapKeys.length === 2 &&
+        mapValues.length === 2 &&
+        mapKeys[0] === variableName &&
+        mapValues[0] == firstValue &&
+        mapKeys[1] === 'DROPDOWN' &&
+        mapValues[1].length === 0
+      );
+
+      expect(result).toBeTruthy();
     });
 
     test('Test of remote uservariable parsing', async () => {

@@ -16,16 +16,16 @@ describe('Parser catroid program tests', () => {
     const xmlString = 
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <program>
-        <header>
-            <catrobatLanguageVersion>0.993</catrobatLanguageVersion>
-            <programName>Test Program</programName>
-        </header>
-        <scenes>
-            <scene>
-                <name>игра</name>
-                <objectList></objectList>
-            </scene>
-        </scenes>
+      <header>
+        <catrobatLanguageVersion>0.993</catrobatLanguageVersion>
+        <programName>Test Program</programName>
+      </header>
+      <scenes>
+        <scene>
+          <name>игра</name>
+          <objectList></objectList>
+        </scene>
+      </scenes>
     </program>`;
 
     const result = await page.evaluate((pXML) => {
@@ -46,16 +46,16 @@ describe('Parser catroid program tests', () => {
     const xmlString = 
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <program>
-        <header>
-            <catrobatLanguageVersion>0.9994</catrobatLanguageVersion>
-            <programName>Test Program</programName>
-        </header>
-        <scenes>
-            <scene>
-                <name>игра</name>
-                <objectList></objectList>
-            </scene>
-        </scenes>
+      <header>
+        <catrobatLanguageVersion>0.9994</catrobatLanguageVersion>
+        <programName>Test Program</programName>
+      </header>
+      <scenes>
+        <scene>
+          <name>игра</name>
+          <objectList></objectList>
+        </scene>
+      </scenes>
     </program>`;
 
     const programJSON = await page.evaluate((pXML) => {
@@ -76,11 +76,11 @@ describe('Parser catroid program tests', () => {
     const xmlString =
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <program>
-        <header>
-            <catrobatLanguageVersion>0.9994</catrobatLanguageVersion>
-            <programName>Test Program</programName>
-        </header>
-        <scenes></scenes>
+      <header>
+        <catrobatLanguageVersion>0.9994</catrobatLanguageVersion>
+        <programName>Test Program</programName>
+      </header>
+      <scenes></scenes>
     </program>`;
 
     const programJSON = await page.evaluate((pXML) => {
@@ -97,16 +97,16 @@ describe('Parser catroid program tests', () => {
     const xmlString =
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <program>
-        <header>
-            <programName>Test Program</programName>
-            <catrobatLanguageVersion>0.9994</catrobatLanguageVersion>
-        </header>
-        <scenes>
-            <scene>
-                <name>${sceneName}</name>
-                <objectList></objectList>
-            </scene>
-        </scenes>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.9994</catrobatLanguageVersion>
+      </header>
+      <scenes>
+        <scene>
+          <name>${sceneName}</name>
+          <objectList></objectList>
+        </scene>
+      </scenes>
     </program>`;
 
     const programJSON = await page.evaluate((pXML) => {
@@ -129,20 +129,20 @@ describe('Parser catroid program tests', () => {
     const xmlString = 
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <program>
-        <header>
-            <programName>Test Program</programName>
-            <catrobatLanguageVersion>0.9994</catrobatLanguageVersion>
-        </header>
-        <scenes>
-            <scene>
-                <name>${sceneName1}</name>
-                <objectList></objectList>
-            </scene>
-            <scene>
-                <name>${sceneName2}</name>
-                <objectList></objectList>
-            </scene>
-        </scenes>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.9994</catrobatLanguageVersion>
+      </header>
+      <scenes>
+        <scene>
+          <name>${sceneName1}</name>
+          <objectList></objectList>
+        </scene>
+        <scene>
+          <name>${sceneName2}</name>
+          <objectList></objectList>
+        </scene>
+      </scenes>
     </program>`;
 
     const programJSON = await page.evaluate((pXML) => {
@@ -167,23 +167,23 @@ describe('Parser catroid program tests', () => {
     const xmlString =
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <program>
-        <header>
-            <programName>Test Program</programName>
-            <catrobatLanguageVersion>0.99995</catrobatLanguageVersion>
-        </header>
-        <settings />
-        <scenes>
-            <scene>
-                <name>${sceneName}</name>
-                <objectList>
-                    <object type="Sprite" name="${objectName}">
-                        <lookList />
-                        <soundList />
-                        <scriptList />
-                    </object>
-                </objectList>
-            </scene>
-        </scenes>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99995</catrobatLanguageVersion>
+      </header>
+      <settings />
+      <scenes>
+        <scene>
+          <name>${sceneName}</name>
+          <objectList>
+            <object type="Sprite" name="${objectName}">
+              <lookList />
+              <soundList />
+              <scriptList />
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
     </program>`;
 
     const programJSON = await page.evaluate((pXML) => {
@@ -209,28 +209,28 @@ describe('Parser catroid program tests', () => {
     const xmlString =
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <program>
-        <header>
-            <programName>Test Program</programName>
-            <catrobatLanguageVersion>0.99995</catrobatLanguageVersion>
-        </header>
-        <settings />
-        <scenes>
-            <scene>
-                <name>tscene</name>
-                <objectList>
-                    <object type="Sprite" name="tobject1">
-                        <lookList />
-                        <soundList />
-                        <scriptList />
-                    </object>
-                    <object type="Sprite" name="tobject2">
-                        <lookList />
-                        <soundList />
-                        <scriptList />
-                    </object>
-                </objectList>
-            </scene>
-        </scenes>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99995</catrobatLanguageVersion>
+      </header>
+      <settings />
+      <scenes>
+        <scene>
+          <name>tscene</name>
+          <objectList>
+            <object type="Sprite" name="tobject1">
+              <lookList />
+              <soundList />
+              <scriptList />
+            </object>
+            <object type="Sprite" name="tobject2">
+              <lookList />
+              <soundList />
+              <scriptList />
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
     </program>`;
 
     const programJSON = await page.evaluate((pXML) => {
@@ -251,50 +251,111 @@ describe('Parser catroid program tests', () => {
   });
 
   test('Handle single empty object in multiple scenes properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99995</catrobatLanguageVersion></header><settings/><scenes><scene><name>tscene1</name><objectList><object type="Sprite" name="tobject1"><lookList/><soundList/><scriptList/></object></objectList></scene><scene><name>tscene2</name><objectList><object type="Sprite" name="tobject2"><lookList/><soundList/><scriptList/></object></objectList></scene></scenes></program>`;
-        const programJSON = parser.convertProgramToJSONDebug(xmlString);
-        if (programJSON == null) {
-          return false;
-        }
-        return (
-          programJSON.scenes != null &&
-          programJSON.scenes.length === 2 &&
-          programJSON.scenes[0].name === 'tscene1' &&
-          programJSON.scenes[1].name === 'tscene2' &&
-          programJSON.scenes[0].objectList != null &&
-          programJSON.scenes[1].objectList != null &&
-          programJSON.scenes[0].objectList.length === 1 &&
-          programJSON.scenes[1].objectList.length === 1 &&
-          programJSON.scenes[0].objectList[0].name === 'tobject1' &&
-          programJSON.scenes[1].objectList[0].name === 'tobject2'
-        );
-      })
-    ).toBeTruthy();
+    const sceneName1 = 'tscene1';
+    const sceneName2 = 'tscene2';
+    const objectName1 = 'tobject1';
+    const objectName2 = 'tobject2';
+
+    const xmlString = 
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <program>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99995</catrobatLanguageVersion>
+      </header>
+      <settings />
+      <scenes>
+        <scene>
+          <name>${sceneName1}</name>
+          <objectList>
+            <object type="Sprite" name="${objectName1}">
+              <lookList />
+              <soundList />
+              <scriptList />
+            </object>
+          </objectList>
+        </scene>
+        <scene>
+          <name>${sceneName2}</name>
+          <objectList>
+            <object type="Sprite" name="${objectName2}">
+              <lookList />
+              <soundList />
+              <scriptList />
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
+    </program>`;
+
+    const programJSON = await page.evaluate((pXML) => {
+      return Test.Parser.convertProgramToJSONDebug(pXML);
+    }, xmlString);
+
+    const result = (
+      programJSON.scenes != null &&
+      programJSON.scenes.length === 2 &&
+      programJSON.scenes[0].name === sceneName1 &&
+      programJSON.scenes[1].name === sceneName2 &&
+      programJSON.scenes[0].objectList != null &&
+      programJSON.scenes[1].objectList != null &&
+      programJSON.scenes[0].objectList.length === 1 &&
+      programJSON.scenes[1].objectList.length === 1 &&
+      programJSON.scenes[0].objectList[0].name === objectName1 &&
+      programJSON.scenes[1].objectList[0].name === objectName2
+    );
+
+    expect(result).toBeTruthy();
   });
 
   test('Handle single empty script properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99995</catrobatLanguageVersion></header><settings/><scenes><scene><name>tscene</name><objectList><object type="Sprite" name="tobject"><lookList/><soundList/><scriptList><script type="tscript"><brickList/></script></scriptList></object></objectList></scene></scenes></program>`;
-        const programJSON = parser.convertProgramToJSONDebug(xmlString);
-        if (programJSON == null) {
-          return false;
-        }
-        return (
-          programJSON.scenes != null &&
-          programJSON.scenes.length === 1 &&
-          programJSON.scenes[0].name === 'tscene' &&
-          programJSON.scenes[0].objectList != null &&
-          programJSON.scenes[0].objectList.length === 1 &&
-          programJSON.scenes[0].objectList[0].name === 'tobject' &&
-          programJSON.scenes[0].objectList[0].scriptList != null &&
-          programJSON.scenes[0].objectList[0].scriptList.length === 1 &&
-          programJSON.scenes[0].objectList[0].scriptList[0].name === 'tscript'
-        );
-      })
-    ).toBeTruthy();
+    const sceneName = 'tscene';
+    const objectName = 'tobject';
+    const scriptName = 'tscript';
+
+    const xmlString =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <program>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99995</catrobatLanguageVersion>
+      </header>
+      <settings />
+      <scenes>
+        <scene>
+          <name>${sceneName}</name>
+          <objectList>
+            <object type="Sprite" name="${objectName}">
+              <lookList />
+              <soundList />
+              <scriptList>
+                <script type="${scriptName}">
+                  <brickList />
+                </script>
+              </scriptList>
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
+    </program>`;
+    
+    const programJSON = await page.evaluate((pXML) => {
+      return Test.Parser.convertProgramToJSONDebug(pXML);
+    }, xmlString);
+
+    const result = (
+      programJSON.scenes != null &&
+      programJSON.scenes.length === 1 &&
+      programJSON.scenes[0].name === sceneName &&
+      programJSON.scenes[0].objectList != null &&
+      programJSON.scenes[0].objectList.length === 1 &&
+      programJSON.scenes[0].objectList[0].name === objectName &&
+      programJSON.scenes[0].objectList[0].scriptList != null &&
+      programJSON.scenes[0].objectList[0].scriptList.length === 1 &&
+      programJSON.scenes[0].objectList[0].scriptList[0].name === scriptName
+    );
+
+    expect(result).toBeTruthy();
   });
 });
 
@@ -304,101 +365,359 @@ describe('Catroid to Catblocks parser tests', () => {
   });
 
   test('Xml Character escaping test', async () => {
-    expect(
-      await page.evaluate(() => {
-        const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99997</catrobatLanguageVersion></header><scenes><scene><name>игра</name><objectList><object type="Sprite" name="цель"><lookList><look fileName="Space-Panda.png" name="цель"/></lookList><soundList/><scriptList><script type="StartScript"><brickList><brick type="SetSizeToBrick" id="testBrick"><commentedOut>false</commentedOut><formulaList><formula category="SIZE"><type>NUMBER</type><value id="testValue">60&amp;.0</value></formula></formulaList></brick></brickList><commentedOut>false</commentedOut></script></scriptList></object></objectList></scene></scenes></program>`;
-        const programJSON = parser.convertProgramToJSONDebug(xmlString);
-        if (programJSON == null) {
-          return false;
-        }
-        const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
-        return formulaMap != null && formulaMap.entries().next().value.toString().includes('60&.0');
-      })
-    ).toBeTruthy();
+    const xmlString =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <program>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99997</catrobatLanguageVersion>
+      </header>
+      <scenes>
+        <scene>
+          <name>игра</name>
+          <objectList>
+            <object type="Sprite" name="цель">
+              <lookList>
+                <look fileName="Space-Panda.png" name="цель" />
+              </lookList>
+              <soundList />
+              <scriptList>
+                <script type="StartScript">
+                  <brickList>
+                    <brick type="SetSizeToBrick" id="testBrick">
+                      <commentedOut>false</commentedOut>
+                      <formulaList>
+                        <formula category="SIZE">
+                          <type>NUMBER</type>
+                          <value id="testValue">60&amp;.0</value>
+                        </formula>
+                      </formulaList>
+                    </brick>
+                  </brickList>
+                  <commentedOut>false</commentedOut>
+                </script>
+              </scriptList>
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
+    </program>`;
+
+    const formula = await page.evaluate((pXML) => {
+      const programJSON = Test.Parser.convertProgramToJSONDebug(pXML);
+      const formulaMap = programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].formValues;
+      return formulaMap.entries().next().value.toString();
+    }, xmlString);
+
+    const result = formula.includes('60&.0');
+
+    expect(result).toBeTruthy();
   });
 
   test('LookList reference not within the same object', async () => {
-    expect(
-      await page.evaluate(() => {
-        const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99997</catrobatLanguageVersion></header><scenes><scene><name>игра</name><objectList><object type="Sprite" name="TestLookListObject"><lookList><look fileName="testLook.png" name="testLook"/></lookList><soundList/><scriptList/></object><object type="Sprite" name="цель"><lookList></lookList><soundList/><scriptList><script type="StartScript"><brickList><brick type="SetLookBrick"><commentedOut>false</commentedOut><look reference="../../../../../../object[1]/lookList/look[1]"/></brick></brickList><commentedOut>false</commentedOut></script></scriptList></object></objectList></scene></scenes></program>`;
-        const programJSON = parser.convertProgramToJSONDebug(xmlString);
-        if (programJSON == null) {
-          return false;
-        }
-        const objectName = programJSON.scenes[0].objectList[0].name;
-        const lookName = programJSON.scenes[0].objectList[0].lookList[0].name;
-        const lookFileName = programJSON.scenes[0].objectList[0].lookList[0].fileName;
-        return objectName === 'TestLookListObject' && lookName === 'testLook' && lookFileName === 'testLook.png';
-      })
-    ).toBeTruthy();
+    const objectName = 'TestLookListObject';
+    const lookName = 'testLook';
+    const lookFileName = 'testLook.png';
+    const xmlString =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <program>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99997</catrobatLanguageVersion>
+      </header>
+      <scenes>
+        <scene>
+          <name>игра</name>
+          <objectList>
+            <object type="Sprite" name="${objectName}">
+              <lookList>
+                <look fileName="${lookFileName}" name="${lookName}" />
+              </lookList>
+              <soundList />
+              <scriptList />
+            </object>
+            <object type="Sprite" name="цель">
+              <lookList></lookList>
+              <soundList />
+              <scriptList>
+                <script type="StartScript">
+                  <brickList>
+                    <brick type="SetLookBrick">
+                      <commentedOut>false</commentedOut>
+                      <look reference="../../../../../../object[1]/lookList/look[1]" />
+                    </brick>
+                  </brickList>
+                  <commentedOut>false</commentedOut>
+                </script>
+              </scriptList>
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
+    </program>`;
+
+    const programJSON = await page.evaluate((pXML) => {
+      return Test.Parser.convertProgramToJSONDebug(pXML);
+    }, xmlString);
+
+    const result = (
+      objectName === programJSON.scenes[0].objectList[0].name && 
+      lookName === programJSON.scenes[0].objectList[0].lookList[0].name && 
+      lookFileName === programJSON.scenes[0].objectList[0].lookList[0].fileName
+    );
+
+    expect(result).toBeTruthy();
   });
 
   test('SoundList reference not within the same object', async () => {
-    expect(
-      await page.evaluate(() => {
-        const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99997</catrobatLanguageVersion></header><scenes><scene><name>игра</name><objectList><object type="Sprite" name="TestSoundListObject"><lookList></lookList><soundList><sound fileName="testSound.png" name="testSound"/></soundList><scriptList/></object><object type="Sprite" name="цель"><lookList></lookList><soundList/><scriptList><script type="StartScript"><brickList><brick type="SetSoundBrick"><commentedOut>false</commentedOut><sound reference="../../../../../../object[1]/soundList/sound[1]"/></brick></brickList><commentedOut>false</commentedOut></script></scriptList></object></objectList></scene></scenes></program>`;
-        const programJSON = parser.convertProgramToJSONDebug(xmlString);
-        if (programJSON == null) {
-          return false;
-        }
-        const objectName = programJSON.scenes[0].objectList[0].name;
-        const soundName = programJSON.scenes[0].objectList[0].soundList[0].name;
-        const soundFileName = programJSON.scenes[0].objectList[0].soundList[0].fileName;
-        return objectName === 'TestSoundListObject' && soundName === 'testSound' && soundFileName === 'testSound.png';
-      })
-    ).toBeTruthy();
+    const objectName = 'TestSoundListObject';
+    const soundName = 'testSound';
+    const soundFileName = 'testSound.png';
+    const xmlString =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <program>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99997</catrobatLanguageVersion>
+      </header>
+      <scenes>
+        <scene>
+          <name>игра</name>
+          <objectList>
+            <object type="Sprite" name="${objectName}">
+              <lookList></lookList>
+              <soundList>
+                <sound fileName="${soundFileName}" name="${soundName}" />
+              </soundList>
+              <scriptList />
+            </object>
+            <object type="Sprite" name="цель">
+              <lookList></lookList>
+              <soundList />
+              <scriptList>
+                <script type="StartScript">
+                  <brickList>
+                    <brick type="SetSoundBrick">
+                      <commentedOut>false</commentedOut>
+                      <sound reference="../../../../../../object[1]/soundList/sound[1]" />
+                    </brick>
+                  </brickList>
+                  <commentedOut>false</commentedOut>
+                </script>
+              </scriptList>
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
+    </program>`;
+
+    const programJSON = await page.evaluate((pXML) => {
+      return Test.Parser.convertProgramToJSONDebug(pXML);
+    }, xmlString);
+
+    const result = (
+      programJSON.scenes[0].objectList[0].name === objectName &&
+      programJSON.scenes[0].objectList[0].soundList[0].name === soundName &&
+      programJSON.scenes[0].objectList[0].soundList[0].fileName === soundFileName
+    );
+
+    expect(result).toBeTruthy();
   });
 
   test('Test if no value is used if no nodeValue is given', async () => {
-    expect(
-      await page.evaluate(() => {
-        const xmlString = `<?xml version="1.0" encoding="UTF-8"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99997</catrobatLanguageVersion></header><scenes><scene><name>игра</name><objectList><object type="Sprite" name="TestSoundListObject"><lookList /><soundList><sound fileName="testSound.png" name="testSound" /></soundList><scriptList /></object><object type="Sprite" name="цель"><lookList /><soundList /><scriptList><script type="StartScript"><brickList><brick type="WaitBrick"><commentedOut>false</commentedOut><formulaList><formula category="testFormular"><leftChild><type>NUMBER</type><value>37</value></leftChild><rightChild><type>NUMBER</type><value>58</value></rightChild><type>FUNCTION</type><value /></formula></formulaList></brick></brickList><commentedOut>false</commentedOut></script></scriptList></object></objectList></scene></scenes></program>`;
-        const programJSON = parser.convertProgramToJSONDebug(xmlString);
-        if (programJSON == null) {
-          return false;
-        }
-        const brickName = programJSON.scenes[0].objectList[1].scriptList[0].brickList[0].name;
-        const formulaMap = programJSON.scenes[0].objectList[1].scriptList[0].brickList[0].formValues;
-        return brickName === 'WaitBrick' && formulaMap.entries().next().value.toString().includes('37  58');
-      })
-    ).toBeTruthy();
+    const brickName = 'WaitBrick';
+    const val1 = 37;
+    const val2 = 58;
+    const xmlString =
+    `<?xml version="1.0" encoding="UTF-8"?>
+    <program>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99997</catrobatLanguageVersion>
+      </header>
+      <scenes>
+        <scene>
+          <name>игра</name>
+          <objectList>
+            <object type="Sprite" name="TestSoundListObject">
+              <lookList />
+              <soundList>
+                <sound fileName="testSound.png" name="testSound" />
+              </soundList>
+              <scriptList />
+            </object>
+            <object type="Sprite" name="цель">
+              <lookList />
+              <soundList />
+              <scriptList>
+                <script type="StartScript">
+                  <brickList>
+                    <brick type="${brickName}">
+                      <commentedOut>false</commentedOut>
+                      <formulaList>
+                        <formula category="testFormular">
+                          <leftChild>
+                            <type>NUMBER</type>
+                            <value>${val1}</value>
+                          </leftChild>
+                          <rightChild>
+                            <type>NUMBER</type>
+                            <value>${val2}</value>
+                          </rightChild>
+                          <type>FUNCTION</type>
+                          <value />
+                        </formula>
+                      </formulaList>
+                    </brick>
+                  </brickList>
+                  <commentedOut>false</commentedOut>
+                </script>
+              </scriptList>
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
+    </program>`;
+
+    const [ 
+      programJSON,
+      formulaString
+    ] = await page.evaluate((pXML) => {
+      const programJSON = Test.Parser.convertProgramToJSONDebug(pXML);
+      return [
+        programJSON,
+        programJSON.scenes[0].objectList[1].scriptList[0].brickList[0].formValues.entries().next().value.toString()
+      ];
+    }, xmlString);
+
+    const result = (
+      programJSON.scenes[0].objectList[1].scriptList[0].brickList[0].name === brickName &&
+      formulaString.includes(`${val1}  ${val2}`)
+    );
+
+    expect(result).toBeTruthy();
   });
 
   test('Test if parser converts catroid script properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99997</catrobatLanguageVersion></header><scenes><scene><name>TestScene</name><objectList><object type="Sprite" name="TestObject"><lookList><look fileName="Space-Panda.png" name="Space-Panda"/></lookList><soundList/><scriptList><script type="BroadcastScript"><brickList><brick type="ForeverBrick"><commentedOut>false</commentedOut><loopBricks><brick type="PlaySoundAndWaitBrick"><commentedOut>false</commentedOut><sound name="soundTest"/></brick></loopBricks></brick></brickList><commentedOut>false</commentedOut><receivedMessage>звуки</receivedMessage></script></scriptList></object></objectList></scene></scenes></program>`;
-        const programJSON = parser.convertProgramToJSONDebug(xmlString);
-        if (programJSON == null) {
-          return false;
-        }
-        return (
-          programJSON.scenes[0].objectList[0].scriptList[0].name === 'BroadcastScript' &&
-          programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === 'ForeverBrick' &&
-          programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].loopOrIfBrickList[0].name ===
-            'PlaySoundAndWaitBrick'
-        );
-      })
-    ).toBeTruthy();
+    const scriptName = 'BroadcastScript';
+    const brick1 = 'ForeverBrick';
+    const brick2 = 'PlaySoundAndWaitBrick';
+    const xmlString =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <program>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99997</catrobatLanguageVersion>
+      </header>
+      <scenes>
+        <scene>
+          <name>TestScene</name>
+          <objectList>
+            <object type="Sprite" name="TestObject">
+              <lookList>
+                <look fileName="Space-Panda.png" name="Space-Panda" />
+              </lookList>
+              <soundList />
+              <scriptList>
+                <script type="${scriptName}">
+                  <brickList>
+                    <brick type="${brick1}">
+                      <commentedOut>false</commentedOut>
+                      <loopBricks>
+                        <brick type="${brick2}">
+                          <commentedOut>false</commentedOut>
+                          <sound name="soundTest" />
+                        </brick>
+                      </loopBricks>
+                    </brick>
+                  </brickList>
+                  <commentedOut>false</commentedOut>
+                  <receivedMessage>звуки</receivedMessage>
+                </script>
+              </scriptList>
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
+    </program>`;
+
+    const programJSON = await page.evaluate((pXML) => {
+      return Test.Parser.convertProgramToJSONDebug(pXML);
+    }, xmlString);
+
+    const result = (
+      programJSON.scenes[0].objectList[0].scriptList[0].name === scriptName &&
+      programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === brick1 &&
+      programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].loopOrIfBrickList[0].name === brick2
+    );
+
+    expect(result).toBeTruthy();
   });
 
   test('Test to check, if the content in the repeat block is right', async () => {
-    expect(
-      await page.evaluate(() => {
-        const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><program><header><programName>Test Program</programName><catrobatLanguageVersion>0.99997</catrobatLanguageVersion></header><scenes><scene><name>TestScene</name><objectList><object type="Sprite" name="TestObject"><lookList><look fileName="Space-Panda.png" name="Space-Panda"/></lookList><soundList/><scriptList><script type="StartScript"><brickList><brick type="PlaySoundBrick"><commentedOut>false</commentedOut></brick><brick type="RepeatBrick"><commentedOut>false</commentedOut><formulaList><formula category="TIMES_TO_REPEAT"><type>NUMBER</type><value>1000000000</value></formula></formulaList></brick><brick type="SetBackgroundBrick"></brick><brick type="WaitBrick"></brick><brick type="LoopEndBrick"><commentedOut>false</commentedOut></brick></brickList><commentedOut>false</commentedOut><isUserScript>false</isUserScript></script></scriptList></object></objectList></scene></scenes></program>`;
-        const programJSON = parser.convertProgramToJSONDebug(xmlString);
-        if (programJSON == null) {
-          return false;
-        }
-        return (
-          programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === 'PlaySoundBrick' &&
-          programJSON.scenes[0].objectList[0].scriptList[0].brickList[1].name === 'RepeatBrick' &&
-          programJSON.scenes[0].objectList[0].scriptList[0].brickList[1].loopOrIfBrickList[0].name ===
-            'SetBackgroundBrick' &&
-          programJSON.scenes[0].objectList[0].scriptList[0].brickList[1].loopOrIfBrickList[1].name === 'WaitBrick'
-        );
-      })
-    ).toBeTruthy();
+    const playsoundBrick = 'PlaySoundBrick';
+    const repeatBrick = 'RepeatBrick';
+    const setBackgroundBrick = 'SetBackgroundBrick';
+    const waitBrick = 'WaitBrick';
+    const xmlString =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <program>
+      <header>
+        <programName>Test Program</programName>
+        <catrobatLanguageVersion>0.99997</catrobatLanguageVersion>
+      </header>
+      <scenes>
+        <scene>
+          <name>TestScene</name>
+          <objectList>
+            <object type="Sprite" name="TestObject">
+              <lookList>
+                <look fileName="Space-Panda.png" name="Space-Panda" />
+              </lookList>
+              <soundList />
+              <scriptList>
+                <script type="StartScript">
+                  <brickList>
+                    <brick type="${playsoundBrick}">
+                      <commentedOut>false</commentedOut>
+                    </brick>
+                    <brick type="${repeatBrick}">
+                      <commentedOut>false</commentedOut>
+                      <formulaList>
+                        <formula category="TIMES_TO_REPEAT">
+                          <type>NUMBER</type>
+                          <value>1000000000</value>
+                        </formula>
+                      </formulaList>
+                    </brick>
+                    <brick type="${setBackgroundBrick}"></brick>
+                    <brick type="${waitBrick}"></brick>
+                    <brick type="LoopEndBrick">
+                      <commentedOut>false</commentedOut>
+                    </brick>
+                  </brickList>
+                  <commentedOut>false</commentedOut>
+                  <isUserScript>false</isUserScript>
+                </script>
+              </scriptList>
+            </object>
+          </objectList>
+        </scene>
+      </scenes>
+    </program>`;
+
+    const programJSON = await page.evaluate((pXML) => {
+      return Test.Parser.convertProgramToJSONDebug(pXML);
+    }, xmlString);
+
+    const result = (
+      programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === playsoundBrick &&
+      programJSON.scenes[0].objectList[0].scriptList[0].brickList[1].name === repeatBrick &&
+      programJSON.scenes[0].objectList[0].scriptList[0].brickList[1].loopOrIfBrickList[0].name === setBackgroundBrick &&
+      programJSON.scenes[0].objectList[0].scriptList[0].brickList[1].loopOrIfBrickList[1].name === waitBrick
+    );
+
+    expect(result).toBeTruthy();
   });
 
   describe('Spinner parsing test', () => {

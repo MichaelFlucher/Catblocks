@@ -70,7 +70,8 @@ import { initShareAndRenderPrograms } from './render/utils';
         ShareUtils: shareUtils,
         Toolbox: {
           workspace: toolbox
-        }
+        },
+        Parser: Parser
       };
 
       window.playground = playground;

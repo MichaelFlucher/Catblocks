@@ -1,7 +1,7 @@
 /**
  * @description Share test
  */
-/* global page, SERVER, share, shareTestContainer, shareUtils */
+/* global page, SERVER, Test, shareTestContainer */
 /* eslint no-global-assign:0 */
 'use strict';
 
@@ -10,64 +10,99 @@ beforeEach(async () => {
   page.on('console', message => console.log(message.text()));
   await page.evaluate(() => {
     shareTestContainer = document.getElementById('shareprogs');
+    shareTestContainer.innerHTML = '';
   });
 });
 
 describe('Share basic tests', () => {
   test('Share renders scene container properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const accordionContainer = share.addSceneContainer('accordionID', 'sceneID', shareTestContainer, {
-          real: 'Name of the scene',
-          display: 'Name of the scene'
-        });
-        const cardBody = accordionContainer.parentNode;
-        const sceneObjContainer = cardBody.parentNode;
-        const sceneContainer = sceneObjContainer.parentNode;
+    const nameOfTheScene = 'Name of the scene';
+    const sceneID = 'sceneID';
+    const accordionID = 'accordionID';
+    const accordionObjID = `${sceneID}-accordionObjects`;
 
-        return (
-          accordionContainer.id === 'sceneID-accordionObjects' &&
-          sceneContainer.id === 'sceneID' &&
-          sceneContainer.querySelector('#sceneID-header') !== null &&
-          sceneContainer.querySelector('#sceneID-header').innerText.startsWith('Name of the scene') &&
-          sceneContainer.querySelector('#sceneID-header').getAttribute('data-target') === '#sceneID-collapseOne' &&
-          sceneContainer.getAttribute('class') === 'catblocks-scene card' &&
-          sceneContainer.querySelector('.catblocks-object-container') !== null &&
-          sceneObjContainer.getAttribute('data-parent') === '#accordionID'
-        );
-      })
-    ).toBeTruthy();
+    await page.evaluate((pNameOfTheScene, pSceneID, pAccordionID) => {
+      Test.Share.addSceneContainer(pAccordionID, pSceneID, shareTestContainer, {
+        real: pNameOfTheScene,
+        display: pNameOfTheScene
+      });
+    }, nameOfTheScene, sceneID, accordionID);
+
+    const accordionContainerHandle = await page.$(`#${accordionObjID}`);
+    const cardBodyHandle = (await accordionContainerHandle.$x('..'))[0];
+    const sceneObjContainerHandle = (await cardBodyHandle.$x('..'))[0];
+    const sceneContainerHandle = (await sceneObjContainerHandle.$x('..'))[0];
+
+    const realAccordionObjID = await (await accordionContainerHandle.getProperty('id')).jsonValue();    
+    expect(realAccordionObjID).toEqual(accordionObjID);
+
+    const realSceneID = await (await sceneContainerHandle.getProperty('id')).jsonValue();    
+    expect(realSceneID).toEqual(sceneID);
+
+    const sceneContainerClass = await (await sceneContainerHandle.getProperty('className')).jsonValue();    
+    expect(sceneContainerClass).toEqual('catblocks-scene card');
+
+    const sceneContainerInnerText = await sceneContainerHandle.$eval(`#${sceneID}-header`, x => x.innerText);
+    expect(sceneContainerInnerText.startsWith(nameOfTheScene)).toBeTruthy();
+
+    const sceneContainerTarget = await sceneContainerHandle.$eval(`#${sceneID}-header`, x => x.getAttribute('data-target'));
+    expect(sceneContainerTarget).toEqual(`#${sceneID}-collapseOne`);
+
+    const catblocksObjContainerHandle = sceneContainerHandle.$('.catblocks-object-container');  
+    expect(catblocksObjContainerHandle).not.toBeNull();
+
+    const sceneObjContainerParentAttr = await sceneContainerHandle.$eval(`#${sceneID}-collapseOne`, x => x.getAttribute('data-parent'));
+    expect(sceneObjContainerParentAttr).toEqual(`#${accordionID}`);
   });
 
   test('Share renders object container properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const container = document.createElement('div');
-        shareTestContainer.append(container);
+    const containerID = 'container-div';
+    const objectCardID = 'tobject';
+    const objectName = 'objectName';
+    const sceneObjectsID = 'sceneID-accordionObjects';
 
-        share.renderObjectJSON('tobject', 'sceneID-accordionObjects', container, { name: 'objectName' });
+    await page.evaluate((pContainerID, pObjectCardID, pObjectName, pSceneObjectsID) => {
+      const container = document.createElement('div');
+      container.setAttribute("id", pContainerID);
+      shareTestContainer.append(container);
 
-        const objectCard = container.firstChild;
+      Test.Share.renderObjectJSON(pObjectCardID, pSceneObjectsID, container, { name: pObjectName });
+    }, containerID, objectCardID, objectName, sceneObjectsID);
 
-        return (
-          objectCard.id === 'tobject' &&
-          objectCard.getAttribute('class') === 'catblocks-object card' &&
-          container.querySelector('#tobject-header') !== null &&
-          container.querySelector('#tobject-header').innerText.startsWith('objectName') &&
-          container.querySelector('#tobject-collapseOneScene') !== null &&
-          container.querySelector('#tobject-collapseOneScene').getAttribute('data-parent') ===
-            '#sceneID-accordionObjects' &&
-          container.querySelector('.tab-content') !== null &&
-          container.querySelector('#tobject-tabs') !== null &&
-          container.querySelector('#tobject-scripts-tab') !== null &&
-          container.querySelector('#tobject-looks-tab') !== null &&
-          container.querySelector('#tobject-sounds-tab') !== null &&
-          container.querySelector(container.querySelector('#tobject-scripts-tab').getAttribute('href')) !== null &&
-          container.querySelector(container.querySelector('#tobject-looks-tab').getAttribute('href')) !== null &&
-          container.querySelector(container.querySelector('#tobject-sounds-tab').getAttribute('href')) !== null
-        );
-      })
-    ).toBeTruthy();
+    const containerHandle = await page.$(`#${containerID}`);
+
+    const objectCardHandle = await containerHandle.$(`*:first-child`);
+    const realObjectCardID = await (await objectCardHandle.getProperty('id')).jsonValue(); 
+    expect(realObjectCardID).toEqual(objectCardID);
+
+    const objectCardClass = await (await objectCardHandle.getProperty('className')).jsonValue(); 
+    expect(objectCardClass).toEqual('catblocks-object card');
+
+    const objectHeaderText = await containerHandle.$eval(`#${objectCardID}-header`, x => x.innerText);
+    expect(objectHeaderText.startsWith(objectName)).toBeTruthy();
+
+    const dataParent = await containerHandle.$eval(`#${objectCardID}-collapseOneScene`, x => x.getAttribute('data-parent'));
+    expect(dataParent).toEqual(`#${sceneObjectsID}`);
+
+    const tabContent = await containerHandle.$('.tab-content');
+    expect(tabContent).not.toBeNull();
+
+    const tabsContainer = await containerHandle.$(`#${objectCardID}-tabs`);
+    expect(tabsContainer).not.toBeNull();
+
+    async function checkTabs(id) {
+      const container = await containerHandle.$(id);
+      expect(container).not.toBeNull();
+
+      const href = await (await container.getProperty('href')).jsonValue(); 
+      const anchor = href.split('/').pop();
+      const anchorItem = await containerHandle.$(anchor);
+      expect(anchorItem).not.toBeNull();
+    }
+
+    await checkTabs(`#${objectCardID}-scripts-tab`);
+    await checkTabs(`#${objectCardID}-looks-tab`);
+    await checkTabs(`#${objectCardID}-sounds-tab`);
   });
 });
 
@@ -78,7 +113,7 @@ describe('Share catroid program rendering tests', () => {
         const catObj = undefined;
 
         try {
-          share.renderProgramJSON('programID', shareTestContainer, catObj);
+          Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
           return false;
         } catch (e) {
           return (
@@ -96,7 +131,7 @@ describe('Share catroid program rendering tests', () => {
         const catObj = {};
 
         try {
-          share.renderProgramJSON('programID', shareTestContainer, catObj);
+          Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
           return false;
         } catch (e) {
           return (
@@ -122,7 +157,7 @@ describe('Share catroid program rendering tests', () => {
           ]
         };
 
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
 
         return (
           shareTestContainer.querySelector('.catblocks-scene') !== null &&
@@ -150,7 +185,7 @@ describe('Share catroid program rendering tests', () => {
           ]
         };
 
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
 
         return (
           shareTestContainer.querySelector('.catblocks-scene') !== null &&
@@ -180,7 +215,7 @@ describe('Share catroid program rendering tests', () => {
           ]
         };
 
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
 
         return (
           shareTestContainer.querySelector('.catblocks-object .card-header') !== null &&
@@ -216,16 +251,16 @@ describe('Share catroid program rendering tests', () => {
           ]
         };
 
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
         const sceneHeader = shareTestContainer.querySelector('.catblocks-scene-header');
         sceneHeader.click();
 
-        const sceneID = shareUtils.generateID('programID-testscene');
-        const obj1ID = shareUtils.generateID('programID-testscene-tobject1');
-        const obj2ID = shareUtils.generateID('programID-testscene-tobject2');
+        const sceneID = Test.ShareUtils.generateID('programID-testscene');
+        const obj1ID = Test.ShareUtils.generateID('programID-testscene-tobject1');
+        const obj2ID = Test.ShareUtils.generateID('programID-testscene-tobject2');
 
         return (
-          shareTestContainer.querySelector('#' + shareUtils.generateID('programID')) !== null &&
+          shareTestContainer.querySelector('#' + Test.ShareUtils.generateID('programID')) !== null &&
           shareTestContainer.querySelector('#' + sceneID) !== null &&
           shareTestContainer.querySelector('#' + obj1ID + '-scripts-tab') !== null &&
           shareTestContainer.querySelector('#' + obj1ID + '-looks') !== null &&
@@ -262,16 +297,16 @@ describe('Share catroid program rendering tests', () => {
           ]
         };
 
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
-        const scene1ID = shareUtils.generateID('programID-testscene1');
-        const scene2ID = shareUtils.generateID('programID-testscene2');
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
+        const scene1ID = Test.ShareUtils.generateID('programID-testscene1');
+        const scene2ID = Test.ShareUtils.generateID('programID-testscene2');
         shareTestContainer.querySelector('#' + scene1ID).click();
         shareTestContainer.querySelector('#' + scene2ID).click();
-        const obj1ID = shareUtils.generateID('programID-testscene1-tobject1');
-        const obj2ID = shareUtils.generateID('programID-testscene2-tobject2');
+        const obj1ID = Test.ShareUtils.generateID('programID-testscene1-tobject1');
+        const obj2ID = Test.ShareUtils.generateID('programID-testscene2-tobject2');
 
         return (
-          shareTestContainer.querySelector('#' + shareUtils.generateID('programID')) !== null &&
+          shareTestContainer.querySelector('#' + Test.ShareUtils.generateID('programID')) !== null &&
           shareTestContainer.querySelector('#' + scene1ID) !== null &&
           shareTestContainer.querySelector('#' + scene2ID) !== null &&
           shareTestContainer.querySelector('#' + obj1ID + '-scripts-tab') !== null &&
@@ -303,7 +338,7 @@ describe('Share catroid program rendering tests', () => {
           ],
           formValues: {}
         };
-        const svg = share.domToSvg(scriptJSON);
+        const svg = Test.Share.domToSvg(scriptJSON);
         return (
           svg.textContent.replace(/\s/g, ' ').includes('When scene starts') &&
           svg.textContent.replace(/\s/g, ' ').includes('Set x to') &&
@@ -329,7 +364,7 @@ describe('Share catroid program rendering tests', () => {
           ],
           formValues: {}
         };
-        const svg = share.domToSvg(scriptJSON);
+        const svg = Test.Share.domToSvg(scriptJSON);
         return (
           svg !== null &&
           svg.textContent.replace(/\s/g, ' ').includes('When scene starts') &&
@@ -362,8 +397,8 @@ describe('Share catroid program rendering tests', () => {
             }
           ]
         };
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
-        const objID = shareUtils.generateID('programID-testscene-tobject');
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
+        const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
         return (
           shareTestContainer.querySelector(
             '#' + objID + ' #' + objID + '-scripts .catblocks-script svg.catblocks-svg'
@@ -396,9 +431,9 @@ describe('Share catroid program rendering tests', () => {
           ]
         };
 
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
 
-        const objID = shareUtils.generateID('programID-testscene-tobject');
+        const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
         return (
           shareTestContainer.querySelector('#' + objID + ' #' + objID + '-sounds .catblocks-object-sound-name') !=
             null &&
@@ -429,8 +464,8 @@ describe('Share catroid program rendering tests', () => {
             }
           ]
         };
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
-        const objID = shareUtils.generateID('programID-testscene-tobject');
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
+        const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
         const executeQuery = shareTestContainer.querySelector(
           '#' + objID + ' #' + objID + '-scripts .catblocks-script svg.catblocks-svg'
         );
@@ -463,24 +498,24 @@ describe('Share catroid program rendering tests', () => {
           }
         ]
       };
-      share.renderProgramJSON('programID', shareTestContainer, catObj);
+      Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
     });
 
     await page.click('.catblocks-scene-header');
     await page.waitFor(2);
 
     const objID = await page.evaluate(() => {
-      return shareUtils.generateID('programID-testscene-tobject');
+      return Test.ShareUtils.generateID('programID-testscene-tobject');
     });
 
     const dataSrc = await page.evaluate(() => {
-      const objID = shareUtils.generateID('programID-testscene-tobject');
+      const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
       return shareTestContainer
         .querySelector('#' + objID + ' #' + objID + '-looks .catblocks-object-look-item')
         .getAttribute('data-src');
     });
     const beforeClickSrc = await page.evaluate(() => {
-      const objID = shareUtils.generateID('programID-testscene-tobject');
+      const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
       return shareTestContainer
         .querySelector('#' + objID + ' #' + objID + '-looks .catblocks-object-look-item')
         .getAttribute('src');
@@ -496,7 +531,7 @@ describe('Share catroid program rendering tests', () => {
     await page.waitFor(2);
 
     const afterClickSrc = await page.evaluate(() => {
-      const objID = shareUtils.generateID('programID-testscene-tobject');
+      const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
       return shareTestContainer
         .querySelector('#' + objID + ' #' + objID + '-looks .catblocks-object-look-item')
         .getAttribute('src');
@@ -535,7 +570,7 @@ describe('Share catroid program rendering tests', () => {
             }
           ]
         };
-        share.renderProgramJSON(programName, shareTestContainer, catObj);
+        Test.Share.renderProgramJSON(programName, shareTestContainer, catObj);
       },
       { testDisplayName, programName, sceneName, objectName }
     );
@@ -546,8 +581,8 @@ describe('Share catroid program rendering tests', () => {
 
     const { objID, expectedID } = await page.evaluate(
       ({ testDisplayName, programName, sceneName, objectName }) => {
-        const objID = shareUtils.generateID(`${programName}-${sceneName}-${objectName}`);
-        const expectedID = shareUtils.generateID(`${objID}-${testDisplayName}`) + '-imgID';
+        const objID = Test.ShareUtils.generateID(`${programName}-${sceneName}-${objectName}`);
+        const expectedID = Test.ShareUtils.generateID(`${objID}-${testDisplayName}`) + '-imgID';
         return { objID, expectedID };
       },
       { testDisplayName, programName, sceneName, objectName }
@@ -598,7 +633,7 @@ describe('Share catroid program rendering tests', () => {
         };
 
         try {
-          share.renderProgramJSON('programID', shareTestContainer, catObj);
+          Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
         } catch (e) {
           return false;
         }
@@ -628,7 +663,7 @@ describe('Share catroid program rendering tests', () => {
           ]
         };
 
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
         const sceneHeader = shareTestContainer.querySelector('.catblocks-scene-header');
         sceneHeader.click();
         return (
@@ -650,7 +685,7 @@ describe('Share catroid program rendering tests', () => {
         const catObj = {};
 
         try {
-          share.renderProgramJSON('programID', shareTestContainer, catObj);
+          Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
         } catch (e) {
           return false;
         }
@@ -674,7 +709,7 @@ describe('Share catroid program rendering tests', () => {
             }
           ]
         };
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
 
         const expectedCardHeaderText = 'testname';
 
@@ -731,7 +766,7 @@ describe('Share catroid program rendering tests', () => {
             }
           ]
         };
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
 
         const expectedSceneHeaderText =
           '<div class="header-title">testscene1</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>';
@@ -807,7 +842,7 @@ describe('Share catroid program rendering tests', () => {
             }
           ]
         };
-        share.renderProgramJSON('programID', shareTestContainer, catObj);
+        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
         const sceneHeader = shareTestContainer.querySelector('.catblocks-scene-header');
         sceneHeader.click();
         const cardHeader = shareTestContainer.querySelector('.catblocks-object .card-header');
@@ -823,7 +858,7 @@ describe('Share catroid program rendering tests', () => {
 
   test('Images not rendered when disabled', async () => {
     const numTabs = await page.evaluate(() => {
-      share.config.renderLooks = false;
+      Test.Share.config.renderLooks = false;
 
       const catObj = {
         scenes: [
@@ -857,9 +892,9 @@ describe('Share catroid program rendering tests', () => {
           }
         ]
       };
-      share.renderProgramJSON('programID', shareTestContainer, catObj);
+      Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
       const tabs = $('.catro-tabs .nav-item');
-      share.config.renderLooks = true;
+      Test.Share.config.renderLooks = true;
       return tabs.length;
     });
     expect(numTabs).toBe(2);

@@ -108,304 +108,381 @@ describe('Share basic tests', () => {
 
 describe('Share catroid program rendering tests', () => {
   test('Share render unsupported version properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = undefined;
+    const catObj = undefined;
 
-        try {
-          Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-          return false;
-        } catch (e) {
-          return (
-            e.message === 'Empty program found' &&
-            shareTestContainer.querySelector('.card-header').innerText === 'Empty program found'
-          );
-        }
-      })
-    ).toBeTruthy();
+    const errorMessage = await page.evaluate((pCatObj) => {
+      try {
+        Test.Share.renderProgramJSON('programID', shareTestContainer, pCatObj);
+      } catch (e) {
+        return e.message;
+      }
+    }, catObj);
+
+    expect(errorMessage).toEqual('Empty program found');
+
+    const shareTestContainerHandle = await page.$('#shareprogs');
+    const cardHeaderText = await shareTestContainerHandle.$eval('.card-header', x => x.innerText);
+    expect(cardHeaderText).toEqual('Empty program found');
   });
 
   test('Share render an empty program properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {};
+    const catObj = {};
 
-        try {
-          Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-          return false;
-        } catch (e) {
-          return (
-            e.message === 'Empty program found' &&
-            shareTestContainer.querySelector('.card-header').innerText === 'Empty program found'
-          );
-        }
-      })
-    ).toBeTruthy();
+    const errorMessage = await page.evaluate((pCatObj) => {
+      try {
+        Test.Share.renderProgramJSON('programID', shareTestContainer, pCatObj);
+      } catch (e) {
+        return e.message;
+      }
+    }, catObj);
+
+    expect(errorMessage).toEqual('Empty program found');
+
+    const cardHeaderText = await page.$eval('.card-header', x => x.innerText);
+    expect(cardHeaderText).toEqual('Empty program found');
   });
 
   test('Share render a single empty scene properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
-            {
-              name: 'testscene'
-            },
-            {
-              name: 'testscene2'
-            }
-          ]
-        };
+    const catObj = {
+      scenes: [
+        {
+          name: 'testscene'
+        },
+        {
+          name: 'testscene2'
+        }
+      ]
+    };
 
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
+    await page.evaluate((pCatObj) => {
+      Test.Share.renderProgramJSON('programID', shareTestContainer, pCatObj);
+    }, catObj);
 
-        return (
-          shareTestContainer.querySelector('.catblocks-scene') !== null &&
-          shareTestContainer.querySelector('.catblocks-scene-header').innerHTML.length > 0 &&
-          shareTestContainer.querySelector('.catblocks-object-container') !== null &&
-          shareTestContainer.querySelector('.accordion') !== null &&
-          shareTestContainer.querySelector('.catblocks-object .card-header') !== null &&
-          shareTestContainer.querySelector('.catblocks-object .card-header').innerHTML.startsWith('No objects found')
-        );
-      })
-    ).toBeTruthy();
+    const catSceneHandle = await page.$('.catblocks-scene');
+    expect(catSceneHandle).not.toBeNull();
+
+    const sceneHeaderText = await page.$eval('.catblocks-scene-header', x => x.innerHTML);
+    expect(sceneHeaderText.length).toBeGreaterThan(0);
+
+    const catObjectContainer = await page.$('.catblocks-object-container');
+    expect(catObjectContainer).not.toBeNull();
+
+    const accordion = await page.$('.accordion');
+    expect(accordion).not.toBeNull();
+
+    const cardHeaderText = await page.$eval('.catblocks-object .card-header', x => x.innerHTML);
+    expect(cardHeaderText.startsWith('No objects found')).toBeTruthy();
   });
 
   test('Share render multiple empty scenes properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
-            {
-              name: 'testscene1'
-            },
-            {
-              name: 'testscene2'
-            }
-          ]
-        };
+    const catObj = {
+      scenes: [
+        {
+          name: 'testscene'
+        },
+        {
+          name: 'testscene2'
+        }
+      ]
+    };
 
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
+    await page.evaluate((pCatObj) => {
+      Test.Share.renderProgramJSON('programID', shareTestContainer, pCatObj);
+    }, catObj);
 
-        return (
-          shareTestContainer.querySelector('.catblocks-scene') !== null &&
-          shareTestContainer.querySelector('.catblocks-scene-header').innerHTML.length > 0 &&
-          shareTestContainer.querySelector('.catblocks-object-container') !== null &&
-          shareTestContainer.querySelector('.accordion') !== null &&
-          shareTestContainer.getElementsByClassName('catblocks-object').length === 2 &&
-          shareTestContainer.querySelector('.catblocks-object .card-header').innerHTML.startsWith('No objects found')
-        );
-      })
-    ).toBeTruthy();
+    const catSceneHandle = await page.$('.catblocks-scene');
+    expect(catSceneHandle).not.toBeNull();
+
+    const sceneHeaderText = await page.$eval('.catblocks-scene-header', x => x.innerHTML);
+    expect(sceneHeaderText).not.toHaveLength(0);
+
+    const catObjectContainer = await page.$('.catblocks-object-container');
+    expect(catObjectContainer).not.toBeNull();
+
+    const accordion = await page.$('.accordion');
+    expect(accordion).not.toBeNull();
+
+    const catblocksHandle = await page.$$('.catblocks-object');
+    expect(catblocksHandle).toHaveLength(2);
+    
+    const cardHeaderText = await page.$eval('.catblocks-object .card-header', x => x.innerHTML);
+    expect(cardHeaderText.startsWith('No objects found')).toBeTruthy();
   });
 
   test('Share render a single empty object properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
+    const catObj = {
+      scenes: [
+        {
+          name: 'testscene',
+          objectList: [
             {
-              name: 'testscene',
-              objectList: [
-                {
-                  name: 'tobject'
-                }
-              ]
+              name: 'tobject'
             }
           ]
-        };
+        }
+      ]
+    };
 
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
+    await page.evaluate((pCatObj) => {
+      Test.Share.renderProgramJSON('programID', shareTestContainer, pCatObj);
+    }, catObj);
 
-        return (
-          shareTestContainer.querySelector('.catblocks-object .card-header') !== null &&
-          shareTestContainer
-            .querySelector('.catblocks-object .card-header')
-            .innerHTML.startsWith('<div class="header-title">tobject</div>') &&
-          shareTestContainer.querySelector('.tab-pane') !== null &&
-          shareTestContainer.querySelector('.catblocks-script') === null
-        );
-      })
-    ).toBeTruthy();
+    const cardHeaderText = await page.$eval('.catblocks-object .card-header', x => x.innerHTML);
+    expect(cardHeaderText.startsWith('<div class="header-title">tobject</div>')).toBeTruthy();
+
+    const tabContainer = await page.$('.tab-pane');
+    expect(tabContainer).not.toBeNull();
+
+    const scriptContainer = await page.$('.catblocks-script');
+    expect(scriptContainer).toBeNull();
   });
 
   test('Share render multiple empty objects in same scene', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
+    const programID = 'programID';
+    const sceneName = 'testscene';
+    const obj1Name = 'tobject1';
+    const obj2Name = 'tobject2';
+
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName,
+          objectList: [
             {
-              name: 'testscene',
-              objectList: [
-                {
-                  name: 'tobject1'
-                },
-                {
-                  name: 'tobject2'
-                }
-              ]
+              name: obj1Name
             },
             {
-              name: 'testscene2'
+              name: obj2Name
             }
           ]
-        };
+        },
+        {
+          name: 'testscene2'
+        }
+      ]
+    };
 
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-        const sceneHeader = shareTestContainer.querySelector('.catblocks-scene-header');
-        sceneHeader.click();
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
 
-        const sceneID = Test.ShareUtils.generateID('programID-testscene');
-        const obj1ID = Test.ShareUtils.generateID('programID-testscene-tobject1');
-        const obj2ID = Test.ShareUtils.generateID('programID-testscene-tobject2');
+    const [ 
+      generatedProgramID,
+      sceneID,
+      obj1ID,
+      obj2ID
+    ] = await page.evaluate((pProgramID, pSceneName, pObjectName1, pObjectName2) => {
+      return [
+        Test.ShareUtils.generateID(pProgramID),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}`),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}-${pObjectName1}`),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}-${pObjectName2}`)
+      ];
+    }, programID, sceneName, obj1Name, obj2Name);
 
-        return (
-          shareTestContainer.querySelector('#' + Test.ShareUtils.generateID('programID')) !== null &&
-          shareTestContainer.querySelector('#' + sceneID) !== null &&
-          shareTestContainer.querySelector('#' + obj1ID + '-scripts-tab') !== null &&
-          shareTestContainer.querySelector('#' + obj1ID + '-looks') !== null &&
-          shareTestContainer.querySelector('#' + obj1ID + '-sounds .catblocks-empty-text') !== null &&
-          shareTestContainer.querySelector('#' + obj2ID + '-scripts-tab') !== null &&
-          shareTestContainer.querySelector('#' + obj2ID + '-looks') !== null &&
-          shareTestContainer.querySelector('#' + obj2ID + '-sounds .catblocks-empty-text') !== null
-        );
-      })
-    ).toBeTruthy();
+    const headers = await page.$$('.catblocks-scene-header');
+    // open first scene
+    await headers[0].click();
+    // wait for it to show
+    await page.waitForSelector(`#${sceneID}-collapseOne.show`);
+    // open second scene
+    await headers[1].click();
+
+    const programContainer = await page.$(`#${generatedProgramID}`);
+    expect(programContainer).not.toBeNull();
+
+    const sceneContainer = await page.$(`#${sceneID}`);
+    expect(sceneContainer).not.toBeNull();
+
+    const obj1scriptsTab = await page.$(`#${obj1ID}-scripts-tab`);
+    expect(obj1scriptsTab).not.toBeNull();
+
+    const obj1looksTab = await page.$(`#${obj1ID}-looks`);
+    expect(obj1looksTab).not.toBeNull();
+
+    const obj1emptySounds = await page.$(`#${obj1ID}-sounds .catblocks-empty-text`);
+    expect(obj1emptySounds).not.toBeNull();
+
+    const obj2scriptsTab = await page.$(`#${obj2ID}-scripts-tab`);
+    expect(obj2scriptsTab).not.toBeNull();
+
+    const obj2looksTab = await page.$(`#${obj2ID}-looks`);
+    expect(obj2looksTab).not.toBeNull();
+
+    const obj2emptySounds = await page.$(`#${obj2ID}-sounds .catblocks-empty-text`);
+    expect(obj2emptySounds).not.toBeNull();
   });
 
   test('Share render empty objects in different scenes', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
+    const programID = 'programID';
+    const scene1Name = 'testscene1';
+    const obj1Name = 'tobject1';
+    const scene2Name = 'testscene2';
+    const obj2Name = 'tobject2';
+
+    const catObj = {
+      scenes: [
+        {
+          name: scene1Name,
+          objectList: [
             {
-              name: 'testscene1',
-              objectList: [
-                {
-                  name: 'tobject1'
-                }
-              ]
-            },
-            {
-              name: 'testscene2',
-              objectList: [
-                {
-                  name: 'tobject2'
-                }
-              ]
+              name: obj1Name
             }
           ]
-        };
+        },
+        {
+          name: scene2Name,
+          objectList: [
+            {
+              name: obj2Name
+            }
+          ]
+        }
+      ]
+    };
 
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-        const scene1ID = Test.ShareUtils.generateID('programID-testscene1');
-        const scene2ID = Test.ShareUtils.generateID('programID-testscene2');
-        shareTestContainer.querySelector('#' + scene1ID).click();
-        shareTestContainer.querySelector('#' + scene2ID).click();
-        const obj1ID = Test.ShareUtils.generateID('programID-testscene1-tobject1');
-        const obj2ID = Test.ShareUtils.generateID('programID-testscene2-tobject2');
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
 
-        return (
-          shareTestContainer.querySelector('#' + Test.ShareUtils.generateID('programID')) !== null &&
-          shareTestContainer.querySelector('#' + scene1ID) !== null &&
-          shareTestContainer.querySelector('#' + scene2ID) !== null &&
-          shareTestContainer.querySelector('#' + obj1ID + '-scripts-tab') !== null &&
-          shareTestContainer.querySelector('#' + obj1ID + '-looks') !== null &&
-          shareTestContainer.querySelector('#' + obj1ID + '-sounds') !== null &&
-          shareTestContainer.querySelector('#' + obj1ID + '-sounds .catblocks-empty-text') !== null &&
-          shareTestContainer.querySelector('#' + obj2ID + '-scripts-tab') !== null &&
-          shareTestContainer.querySelector('#' + obj2ID + '-looks') !== null &&
-          shareTestContainer.querySelector('#' + obj2ID + '-sounds') !== null &&
-          shareTestContainer.querySelector('#' + obj2ID + '-sounds .catblocks-empty-text') !== null
-        );
-      })
-    ).toBeTruthy();
+    const [ 
+      generatedProgramID,
+      scene1ID,
+      scene2ID,
+      obj1ID,
+      obj2ID
+    ] = await page.evaluate((pProgramID, pSceneName1, pObjectName1, pSceneName2, pObjectName2) => {
+      return [
+        Test.ShareUtils.generateID(pProgramID),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName1}`),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName2}`),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName1}-${pObjectName1}`),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName2}-${pObjectName2}`)
+      ];
+    }, programID, scene1Name, obj1Name, scene2Name, obj2Name);
+
+    await page.click(`#${scene1ID}`);
+    await page.click(`#${scene2ID}`);
+
+    const programContainer = await page.$(`#${generatedProgramID}`);
+    expect(programContainer).not.toBeNull();
+
+    const scene1Container = await page.$(`#${scene1ID}`);
+    expect(scene1Container).not.toBeNull();    
+
+    const scene2Container = await page.$(`#${scene2ID}`);
+    expect(scene2Container).not.toBeNull();
+
+    const obj1scriptsTab = await page.$(`#${obj1ID}-scripts-tab`);
+    expect(obj1scriptsTab).not.toBeNull();
+
+    const obj1looksTab = await page.$(`#${obj1ID}-looks`);
+    expect(obj1looksTab).not.toBeNull();
+
+    const obj1emptySounds = await page.$(`#${obj1ID}-sounds .catblocks-empty-text`);
+    expect(obj1emptySounds).not.toBeNull();
+
+    const obj2scriptsTab = await page.$(`#${obj2ID}-scripts-tab`);
+    expect(obj2scriptsTab).not.toBeNull();
+
+    const obj2looksTab = await page.$(`#${obj2ID}-looks`);
+    expect(obj2looksTab).not.toBeNull();
+
+    const obj2emptySounds = await page.$(`#${obj2ID}-sounds .catblocks-empty-text`);
+    expect(obj2emptySounds).not.toBeNull();
   });
 
   test('Share render script svg', async () => {
-    expect(
-      await page.evaluate(() => {
-        const scriptJSON = {
-          name: 'StartScript',
-          brickList: [
-            {
-              name: 'SetXBrick',
-              loopOrIfBrickList: [],
-              elseBrickList: [],
-              formValues: {},
-              colorVariation: 0
-            }
-          ],
-          formValues: {}
-        };
-        const svg = Test.Share.domToSvg(scriptJSON);
-        return (
-          svg.textContent.replace(/\s/g, ' ').includes('When scene starts') &&
-          svg.textContent.replace(/\s/g, ' ').includes('Set x to') &&
-          svg.textContent.replace(/\s/g, ' ').includes('unset')
-        );
-      })
-    ).toBeTruthy();
+    const scriptJSON = {
+      name: 'StartScript',
+      brickList: [
+        {
+          name: 'SetXBrick',
+          loopOrIfBrickList: [],
+          elseBrickList: [],
+          formValues: {},
+          colorVariation: 0
+        }
+      ],
+      formValues: {}
+    };
+
+    const textContent = await page.evaluate((pScriptJSON) => {
+      const svg = Test.Share.domToSvg(pScriptJSON);
+      return svg.textContent;
+    }, scriptJSON);
+
+    expect(textContent.replace(/\s/g, ' ').includes('When scene starts')).toBeTruthy();
+    expect(textContent.replace(/\s/g, ' ').includes('Set x to')).toBeTruthy();
+    expect(textContent.replace(/\s/g, ' ').includes('unset')).toBeTruthy();
   });
 
   test('Share render svg script box properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const scriptJSON = {
-          name: 'StartScript',
-          brickList: [
-            {
-              name: 'SetXBrick',
-              loopOrIfBrickList: [],
-              elseBrickList: [],
-              formValues: {},
-              colorVariation: 0
-            }
-          ],
-          formValues: {}
-        };
-        const svg = Test.Share.domToSvg(scriptJSON);
-        return (
-          svg !== null &&
-          svg.textContent.replace(/\s/g, ' ').includes('When scene starts') &&
-          svg.textContent.replace(/\s/g, ' ').includes('Set x to') &&
-          svg.textContent.replace(/\s/g, ' ').includes('unset') &&
-          svg.getAttribute('width').replace('px', '') > 0 &&
-          svg.getAttribute('height').replace('px', '') > 0
-        );
-      })
-    ).toBeTruthy();
+    const scriptJSON = {
+      name: 'StartScript',
+      brickList: [
+        {
+          name: 'SetXBrick',
+          loopOrIfBrickList: [],
+          elseBrickList: [],
+          formValues: {},
+          colorVariation: 0
+        }
+      ],
+      formValues: {}
+    };
+
+    const [
+      width, 
+      height
+    ] = await page.evaluate((pScriptJSON) => {
+      const svg = Test.Share.domToSvg(pScriptJSON);
+      return [
+        svg.getAttribute('width'),
+        svg.getAttribute('height')
+      ];
+    }, scriptJSON);
+
+    const widthValue = parseFloat(width.replace('px', ''));
+    const heightValue = parseFloat(height.replace('px', ''));
+
+    expect(widthValue).toBeGreaterThan(0);
+    expect(heightValue).toBeGreaterThan(0);
   });
 
   test('Share render single empty scriptlist properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
+    const programID = 'programID';
+    const sceneName = 'testscene';
+    const objectName = 'tobject';
+
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName,
+          objectList: [
             {
-              name: 'testscene',
-              objectList: [
+              name: objectName,
+              scriptList: [
                 {
-                  name: 'tobject',
-                  scriptList: [
-                    {
-                      'not-supported': 'yet (takes script from XML)'
-                    }
-                  ]
+                  'not-supported': 'yet (takes script from XML)'
                 }
               ]
             }
           ]
-        };
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-        const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
-        return (
-          shareTestContainer.querySelector(
-            '#' + objID + ' #' + objID + '-scripts .catblocks-script svg.catblocks-svg'
-          ) !== null
-        );
-      })
-    ).toBeTruthy();
+        }
+      ]
+    };
+
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
+
+    const objID = await page.evaluate((pProgramID, pSceneName, pObjectName) => {
+      return Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}-${pObjectName}`);
+    }, programID, sceneName, objectName);
+
+    const container = await page.$(`#${objID} #${objID}-scripts .catblocks-script svg.catblocks-svg`);
+    expect(container).not.toBeNull();
   });
 
   test('Share render object with sound', async () => {

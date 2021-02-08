@@ -926,95 +926,123 @@ describe('Share catroid program rendering tests', () => {
       width: 200,
       height: 1000
     });
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
+    
+    const programID = 'testProgram';
+    const sceneName1 = 'Testscene';
+    const objName1 = 'TestObject';
+
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName1,
+          objectList: [
             {
-              name: 'Testscene',
-              objectList: [
+              name: objName1,
+              lookList: [],
+              soundList: [],
+              scriptList: [
                 {
-                  name: 'TestObject',
-                  lookList: [],
-                  soundList: [],
-                  scriptList: [
+                  name: 'StartScript',
+                  brickList: [
                     {
-                      name: 'StartScript',
-                      brickList: [
-                        {
-                          name: 'PlaySoundBrick',
-                          loopOrIfBrickList: [],
-                          elseBrickList: [],
-                          formValues: {},
-                          colorVariation: 0
-                        }
-                      ],
-                      formValues: {}
+                      name: 'PlaySoundBrick',
+                      loopOrIfBrickList: [],
+                      elseBrickList: [],
+                      formValues: {},
+                      colorVariation: 0
                     }
-                  ]
+                  ],
+                  formValues: {}
                 }
               ]
-            },
-            {
-              name: 'testscene2'
             }
           ]
-        };
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-        const sceneHeader = shareTestContainer.querySelector('.catblocks-scene-header');
-        sceneHeader.click();
-        const cardHeader = shareTestContainer.querySelector('.catblocks-object .card-header');
-        const brickContainer = shareTestContainer.querySelector('.catblocks-script');
-        cardHeader.click();
-        const initialXPosition = brickContainer.scrollLeft;
-        brickContainer.scrollBy(1, 0);
-        const scrolledXPosition = brickContainer.scrollLeft;
-        return initialXPosition !== scrolledXPosition && brickContainer.style.overflowX === 'auto';
-      })
-    ).toBeTruthy();
+        },
+        {
+          name: 'testscene2'
+        }
+      ]
+    };
+
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
+
+    const [
+      scene1ID,
+      obj1ID
+    ] = await page.evaluate((pProgramID, pSceneName, pObjectName) => {
+      return [
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}`),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}-${pObjectName}`)
+      ];
+    }, programID, sceneName1, objName1);
+
+    // open scene
+    await page.click('.catblocks-scene-header');
+    // wait for it to show
+    await page.waitForSelector(`#${scene1ID}-collapseOne.show`);
+
+    // close object
+    await page.click('.catblocks-object .card-header');
+    // wait for it
+    await page.waitForSelector(`#${obj1ID}-collapseOneScene.show`);
+
+    const initialXPosition = await page.$eval('.catblocks-script', x => x.scrollLeft);
+
+    await page.evaluate(() => {
+      const brickContainer = shareTestContainer.querySelector('.catblocks-script');
+      brickContainer.scrollBy(1, 0);
+    });
+
+    const scrolledXPosition = await page.$eval('.catblocks-script', x => x.scrollLeft);
+    expect(scrolledXPosition).not.toBe(initialXPosition);
+
+    const overflowX = await page.$eval('.catblocks-script', x => x.style.overflowX);
+    expect(overflowX).toBe('auto');
   });
 
   test('Images not rendered when disabled', async () => {
-    const numTabs = await page.evaluate(() => {
-      Test.Share.config.renderLooks = false;
+    const catObj = {
+      scenes: [
+        {
+          name: 'Testscene',
+          objectList: [
+            {
+              name: 'TestObject',
+              lookList: [],
+              soundList: [],
+              scriptList: [
+                {
+                  name: 'StartScript',
+                  brickList: [
+                    {
+                      name: 'PlaySoundBrick',
+                      loopOrIfBrickList: [],
+                      elseBrickList: [],
+                      formValues: {},
+                      colorVariation: 0
+                    }
+                  ],
+                  formValues: {}
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'testscene2'
+        }
+      ]
+    };
 
-      const catObj = {
-        scenes: [
-          {
-            name: 'Testscene',
-            objectList: [
-              {
-                name: 'TestObject',
-                lookList: [],
-                soundList: [],
-                scriptList: [
-                  {
-                    name: 'StartScript',
-                    brickList: [
-                      {
-                        name: 'PlaySoundBrick',
-                        loopOrIfBrickList: [],
-                        elseBrickList: [],
-                        formValues: {},
-                        colorVariation: 0
-                      }
-                    ],
-                    formValues: {}
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            name: 'testscene2'
-          }
-        ]
-      };
-      Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-      const tabs = $('.catro-tabs .nav-item');
+    await page.evaluate((pCatObj) => {
+      Test.Share.config.renderLooks = false;
+      Test.Share.renderProgramJSON('programID', shareTestContainer, pCatObj);
       Test.Share.config.renderLooks = true;
-      return tabs.length;
-    });
-    expect(numTabs).toBe(2);
+    }, catObj);
+
+    const tabs = await page.$$('.catro-tabs .nav-item');
+    expect(tabs).toHaveLength(2);
   });
 });

@@ -706,185 +706,219 @@ describe('Share catroid program rendering tests', () => {
   });
 
   test('JSON with one scene', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
-            {
-              name: 'testscene1'
-            }
-          ]
-        };
+    const sceneName = 'testscene1';
 
-        try {
-          Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-        } catch (e) {
-          return false;
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName
         }
-      })
-    ).toBeFalsy();
+      ]
+    };
+
+    const result = await page.evaluate((pCatObj) => {
+      try {
+        // option to render the scene directly
+        Test.Share.renderProgramJSON('programID', shareTestContainer, pCatObj, { 
+          scene: {
+            renderNow: {
+              scene: sceneName
+            }
+          }
+        });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }, catObj);
+
+    expect(result).toBeFalsy();
   });
 
   test('JSON with two objects in scene rendered properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
+    const sceneName = 'testscene';
+    const programID = 'programID';
+
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName,
+          objectList: [
             {
-              name: 'testscene',
-              objectList: [
-                {
-                  name: 'Background'
-                },
-                {
-                  name: 'tobject2'
-                }
-              ]
+              name: 'Background'
             },
             {
-              name: 'testscene2'
+              name: 'tobject2'
             }
           ]
-        };
-
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-        const sceneHeader = shareTestContainer.querySelector('.catblocks-scene-header');
-        sceneHeader.click();
-        return (
-          shareTestContainer.querySelector('.catblocks-scene') !== null &&
-          shareTestContainer.querySelector('.catblocks-scene-header').innerHTML.length > 0 &&
-          shareTestContainer.querySelector('.catblocks-object-container') !== null &&
-          shareTestContainer.querySelector('.accordion') !== null &&
-          shareTestContainer.querySelector('.catblocks-object .card-header') !== null &&
-          shareTestContainer.querySelector('.catblocks-object .card-header').innerHTML ===
-          '<div class="header-title">Background</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>'
-        );
-      })
-    ).toBeTruthy();
-  });
-
-  test('JSON empty but XML given', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {};
-
-        try {
-          Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-        } catch (e) {
-          return false;
+        },
+        {
+          name: 'testscene2'
         }
-      })
-    ).toBeFalsy();
+      ]
+    };
+    
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
+
+    const sceneID = await page.evaluate((pProgramID, pSceneName) => {
+      return Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}`);
+    }, programID, sceneName);
+
+    // open scene (clicks first element with class)
+    await page.click('.catblocks-scene-header');
+    // wait for it to show
+    await page.waitForSelector(`#${sceneID}-collapseOne.show`);
+
+    const cbSceneHandle = await page.$('.catblocks-scene');
+    expect(cbSceneHandle).not.toBeNull();
+
+    const cbSceneHeaderHTML = await page.$eval('.catblocks-scene-header', x => x.innerHTML);
+    expect(cbSceneHeaderHTML).not.toHaveLength(0);
+
+    const cbObjContainerHandle = await page.$('.catblocks-object-container');
+    expect(cbObjContainerHandle).not.toBeNull();
+
+    const accordionHandle = await page.$('.accordion');
+    expect(accordionHandle).not.toBeNull();
+
+    const cbCardHeaderHTML = await page.$eval('.catblocks-object .card-header', x => x.innerHTML);
+    expect(cbCardHeaderHTML).toBe('<div class="header-title">Background</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>');
   });
 
   test('Share renders scene and card headers for one scene properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          programName: 'testname',
-          scenes: [
+    const programID = 'testname';
+    const sceneName = 'testscene';
+
+    const catObj = {
+      programName: programID,
+      scenes: [
+        {
+          name: sceneName,
+          objectList: [
             {
-              name: 'testscene',
-              objectList: [
-                {
-                  name: 'Background'
-                }
-              ]
+              name: 'Background'
             }
           ]
-        };
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
+        }
+      ]
+    };
 
-        const expectedCardHeaderText = 'testname';
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
 
-        const cardHeader = shareTestContainer
-          .querySelector('.catblocks-scene .card-header')
-          .querySelector('.header-title');
-        const cardHeaderInitialText = cardHeader.innerHTML;
-        cardHeader.click();
-        cardHeader.setAttribute('aria-expanded', 'true');
-        const cardHeaderTextExpanded = cardHeader.innerHTML;
-        cardHeader.click();
-        cardHeader.setAttribute('aria-expanded', 'false');
-        const cardHeaderTextCollapsed = cardHeader.innerHTML;
-        return (
-          cardHeaderInitialText === expectedCardHeaderText &&
-          cardHeaderTextExpanded === expectedCardHeaderText &&
-          cardHeaderTextCollapsed === expectedCardHeaderText
-        );
-      })
-    ).toBeTruthy();
-    await page.waitForSelector('.catblocks-object .card-header', {
-      visible: true
-    });
+    const sceneID = await page.evaluate((pProgramID, pSceneName) => {
+      return Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}`);
+    }, programID, sceneName);
+
+    const identifier = '.catblocks-scene .card-header .header-title';
+    const cardHeaderInitialText = await page.$eval(identifier, x => x.innerHTML);
+    expect(cardHeaderInitialText).toBe(programID);
+
+    await page.click(identifier);
+    // wait for it to show
+    await page.waitForSelector(`#${sceneID}-collapseOne.show`);
+
+    const cardHeaderTextExpanded = await page.$eval(identifier, x => x.innerHTML);
+    expect(cardHeaderTextExpanded).toBe(programID);
+
+    await page.click(identifier);
+    // wait for it to hide
+    await page.waitForSelector(`#${sceneID}-collapseOne:not(.show)`);
+    
+    const cardHeaderTextCollapsed = await page.$eval(identifier, x => x.innerHTML);
+    expect(cardHeaderTextCollapsed).toBe(programID);
   });
 
   test('Share renders scene and card headers for multiple scenes properly', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
+    const programID = 'testname';
+    const sceneName1 = 'testscene1';
+    const objName1 = 'Background';
+    const expectedSceneHeaderText = '<div class="header-title">testscene1</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>';
+    const expectedCardHeaderText = '<div class="header-title">Background</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>';
+
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName1,
+          objectList: [
             {
-              name: 'testscene1',
-              objectList: [
-                {
-                  name: 'Background'
-                }
-              ]
-            },
-            {
-              name: 'testscene2',
-              objectList: [
-                {
-                  name: 'tobject2'
-                }
-              ]
-            },
-            {
-              name: 'testscene3',
-              objectList: [
-                {
-                  name: 'tobject3'
-                }
-              ]
+              name: objName1
             }
           ]
-        };
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
+        },
+        {
+          name: 'testscene2',
+          objectList: [
+            {
+              name: 'tobject2'
+            }
+          ]
+        },
+        {
+          name: 'testscene3',
+          objectList: [
+            {
+              name: 'tobject3'
+            }
+          ]
+        }
+      ]
+    };
 
-        const expectedSceneHeaderText =
-          '<div class="header-title">testscene1</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>';
-        const expectedCardHeaderText =
-          '<div class="header-title">Background</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>';
-        const sceneHeader = shareTestContainer.querySelector('.catblocks-scene-header');
-        sceneHeader.click();
-        const cardHeader = shareTestContainer.querySelector('.catblocks-object .card-header');
-        const sceneHeaderInitialText = sceneHeader.innerHTML;
-        const cardHeaderInitialText = cardHeader.innerHTML;
-        cardHeader.click();
-        sceneHeader.setAttribute('aria-expanded', 'true');
-        cardHeader.setAttribute('aria-expanded', 'true');
-        const sceneHeaderTextExpanded = sceneHeader.innerHTML;
-        const cardHeaderTextExpanded = cardHeader.innerHTML;
-        cardHeader.click();
-        sceneHeader.click();
-        sceneHeader.setAttribute('aria-expanded', 'false');
-        cardHeader.setAttribute('aria-expanded', 'false');
-        const sceneHeaderTextCollapsed = sceneHeader.innerHTML;
-        const cardHeaderTextCollapsed = cardHeader.innerHTML;
-        return (
-          sceneHeaderInitialText === expectedSceneHeaderText &&
-          cardHeaderInitialText === expectedCardHeaderText &&
-          sceneHeaderTextExpanded === expectedSceneHeaderText &&
-          cardHeaderTextExpanded === expectedCardHeaderText &&
-          sceneHeaderTextCollapsed === expectedSceneHeaderText &&
-          cardHeaderTextCollapsed === expectedCardHeaderText
-        );
-      })
-    ).toBeTruthy();
-    await page.waitForSelector('.catblocks-object .card-header', {
-      visible: true
-    });
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
+
+    const [
+      scene1ID,
+      obj1ID
+    ] = await page.evaluate((pProgramID, pSceneName, pObjectName) => {
+      return [
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}`),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}-${pObjectName}`)
+      ];
+    }, programID, sceneName1, objName1);
+
+    // open scene
+    await page.click('.catblocks-scene-header');
+    // wait for it to show
+    await page.waitForSelector(`#${scene1ID}-collapseOne.show`);
+
+    const sceneHeaderInitialText = await page.$eval('.catblocks-scene-header', x => x.innerHTML);
+    expect(sceneHeaderInitialText).toBe(expectedSceneHeaderText);
+
+    const cardHeaderInitialText = await page.$eval('.catblocks-object .card-header', x => x.innerHTML);
+    expect(cardHeaderInitialText).toBe(expectedCardHeaderText);
+
+    // open object
+    await page.click('.catblocks-object .card-header');
+    // wait for it
+    await page.waitForSelector(`#${obj1ID}-collapseOneScene.show`);
+
+    const sceneHeaderTextExpanded = await page.$eval('.catblocks-scene-header', x => x.innerHTML);
+    expect(sceneHeaderTextExpanded).toBe(expectedSceneHeaderText);
+
+    const cardHeaderTextExpanded = await page.$eval('.catblocks-object .card-header', x => x.innerHTML);
+    expect(cardHeaderTextExpanded).toBe(expectedCardHeaderText);
+
+    // close object
+    await page.click('.catblocks-object .card-header');
+    // wait for it
+    await page.waitForSelector(`#${obj1ID}-collapseOneScene:not(.show)`);
+
+    // close scene
+    await page.click('.catblocks-scene-header');
+    // wait for it to show
+    await page.waitForSelector(`#${scene1ID}-collapseOne:not(.show)`);
+
+    const sceneHeaderTextCollapsed = await page.$eval('.catblocks-scene-header', x => x.innerHTML);
+    expect(sceneHeaderTextCollapsed).toBe(expectedSceneHeaderText);
+
+    const cardHeaderTextCollapsed = await page.$eval('.catblocks-object .card-header', x => x.innerHTML);
+    expect(cardHeaderTextCollapsed).toBe(expectedCardHeaderText);
   });
 
   test('scrolling bricks on x axis on mobile share page is working', async () => {

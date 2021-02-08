@@ -9,7 +9,13 @@ beforeEach(async () => {
   await page.goto(`${SERVER}`, { waitUntil: 'networkidle0' });
   page.on('console', message => console.log(message.text()));
   await page.evaluate(() => {
+    function removeAllChildNodes(parent) {
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+    }
     shareTestContainer = document.getElementById('shareprogs');
+    removeAllChildNodes(shareTestContainer);
     shareTestContainer.innerHTML = '';
   });
 });
@@ -719,7 +725,7 @@ describe('Share catroid program rendering tests', () => {
     const result = await page.evaluate((pCatObj) => {
       try {
         // option to render the scene directly
-        Test.Share.renderProgramJSON('programID', shareTestContainer, pCatObj, { 
+        Test.Share.renderProgramJSON('programID', shareTestContainer, pCatObj, {
           scene: {
             renderNow: {
               scene: sceneName
@@ -757,7 +763,7 @@ describe('Share catroid program rendering tests', () => {
         }
       ]
     };
-    
+
     await page.evaluate((pCatObj, pProgramID) => {
       Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
     }, catObj, programID);
@@ -827,7 +833,7 @@ describe('Share catroid program rendering tests', () => {
     await page.click(identifier);
     // wait for it to hide
     await page.waitForSelector(`#${sceneID}-collapseOne:not(.show)`);
-    
+
     const cardHeaderTextCollapsed = await page.$eval(identifier, x => x.innerHTML);
     expect(cardHeaderTextCollapsed).toBe(programID);
   });
@@ -926,7 +932,7 @@ describe('Share catroid program rendering tests', () => {
       width: 200,
       height: 1000
     });
-    
+
     const programID = 'testProgram';
     const sceneName1 = 'Testscene';
     const objName1 = 'TestObject';

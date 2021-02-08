@@ -33,13 +33,13 @@ describe('Share basic tests', () => {
     const sceneObjContainerHandle = (await cardBodyHandle.$x('..'))[0];
     const sceneContainerHandle = (await sceneObjContainerHandle.$x('..'))[0];
 
-    const realAccordionObjID = await (await accordionContainerHandle.getProperty('id')).jsonValue();    
+    const realAccordionObjID = await (await accordionContainerHandle.getProperty('id')).jsonValue();
     expect(realAccordionObjID).toEqual(accordionObjID);
 
-    const realSceneID = await (await sceneContainerHandle.getProperty('id')).jsonValue();    
+    const realSceneID = await (await sceneContainerHandle.getProperty('id')).jsonValue();
     expect(realSceneID).toEqual(sceneID);
 
-    const sceneContainerClass = await (await sceneContainerHandle.getProperty('className')).jsonValue();    
+    const sceneContainerClass = await (await sceneContainerHandle.getProperty('className')).jsonValue();
     expect(sceneContainerClass).toEqual('catblocks-scene card');
 
     const sceneContainerInnerText = await sceneContainerHandle.$eval(`#${sceneID}-header`, x => x.innerText);
@@ -48,7 +48,7 @@ describe('Share basic tests', () => {
     const sceneContainerTarget = await sceneContainerHandle.$eval(`#${sceneID}-header`, x => x.getAttribute('data-target'));
     expect(sceneContainerTarget).toEqual(`#${sceneID}-collapseOne`);
 
-    const catblocksObjContainerHandle = sceneContainerHandle.$('.catblocks-object-container');  
+    const catblocksObjContainerHandle = sceneContainerHandle.$('.catblocks-object-container');
     expect(catblocksObjContainerHandle).not.toBeNull();
 
     const sceneObjContainerParentAttr = await sceneContainerHandle.$eval(`#${sceneID}-collapseOne`, x => x.getAttribute('data-parent'));
@@ -72,10 +72,10 @@ describe('Share basic tests', () => {
     const containerHandle = await page.$(`#${containerID}`);
 
     const objectCardHandle = await containerHandle.$(`*:first-child`);
-    const realObjectCardID = await (await objectCardHandle.getProperty('id')).jsonValue(); 
+    const realObjectCardID = await (await objectCardHandle.getProperty('id')).jsonValue();
     expect(realObjectCardID).toEqual(objectCardID);
 
-    const objectCardClass = await (await objectCardHandle.getProperty('className')).jsonValue(); 
+    const objectCardClass = await (await objectCardHandle.getProperty('className')).jsonValue();
     expect(objectCardClass).toEqual('catblocks-object card');
 
     const objectHeaderText = await containerHandle.$eval(`#${objectCardID}-header`, x => x.innerText);
@@ -94,7 +94,7 @@ describe('Share basic tests', () => {
       const container = await containerHandle.$(id);
       expect(container).not.toBeNull();
 
-      const href = await (await container.getProperty('href')).jsonValue(); 
+      const href = await (await container.getProperty('href')).jsonValue();
       const anchor = href.split('/').pop();
       const anchorItem = await containerHandle.$(anchor);
       expect(anchorItem).not.toBeNull();
@@ -204,7 +204,7 @@ describe('Share catroid program rendering tests', () => {
 
     const catblocksHandle = await page.$$('.catblocks-object');
     expect(catblocksHandle).toHaveLength(2);
-    
+
     const cardHeaderText = await page.$eval('.catblocks-object .card-header', x => x.innerHTML);
     expect(cardHeaderText.startsWith('No objects found')).toBeTruthy();
   });
@@ -266,7 +266,7 @@ describe('Share catroid program rendering tests', () => {
       Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
     }, catObj, programID);
 
-    const [ 
+    const [
       generatedProgramID,
       sceneID,
       obj1ID,
@@ -345,7 +345,7 @@ describe('Share catroid program rendering tests', () => {
       Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
     }, catObj, programID);
 
-    const [ 
+    const [
       generatedProgramID,
       scene1ID,
       scene2ID,
@@ -368,7 +368,7 @@ describe('Share catroid program rendering tests', () => {
     expect(programContainer).not.toBeNull();
 
     const scene1Container = await page.$(`#${scene1ID}`);
-    expect(scene1Container).not.toBeNull();    
+    expect(scene1Container).not.toBeNull();
 
     const scene2Container = await page.$(`#${scene2ID}`);
     expect(scene2Container).not.toBeNull();
@@ -433,7 +433,7 @@ describe('Share catroid program rendering tests', () => {
     };
 
     const [
-      width, 
+      width,
       height
     ] = await page.evaluate((pScriptJSON) => {
       const svg = Test.Share.domToSvg(pScriptJSON);
@@ -486,184 +486,192 @@ describe('Share catroid program rendering tests', () => {
   });
 
   test('Share render object with sound', async () => {
-    expect(
-      await page.evaluate(() => {
-        const testDisplayName = 'Silence Sound';
-        const catObj = {
-          scenes: [
+    const testDisplayName = 'Silence Sound';
+    const programID = 'programID';
+    const sceneName = 'testscene';
+    const objectName = 'tobject';
+
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName,
+          objectList: [
             {
-              name: 'testscene',
-              objectList: [
+              name: objectName,
+              soundList: [
                 {
-                  name: 'tobject',
-                  soundList: [
-                    {
-                      name: testDisplayName,
-                      fileName: 'silence.mp3'
-                    }
-                  ]
+                  name: testDisplayName,
+                  fileName: 'silence.mp3'
                 }
               ]
             }
           ]
-        };
+        }
+      ]
+    };
 
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
 
-        const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
-        return (
-          shareTestContainer.querySelector('#' + objID + ' #' + objID + '-sounds .catblocks-object-sound-name') !=
-            null &&
-          shareTestContainer.querySelector('#' + objID + ' #' + objID + '-sounds .catblocks-object-sound-name')
-            .innerHTML === testDisplayName
-        );
-      })
-    ).toBeTruthy();
+    const objID = await page.evaluate((pProgramID, pSceneName, pObjectName) => {
+      return Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}-${pObjectName}`);
+    }, programID, sceneName, objectName);
+
+    const soundNameHTML = await page.$eval(`#${objID} #${objID}-sounds .catblocks-object-sound-name`, x => x.innerHTML);
+    expect(soundNameHTML).toBe(testDisplayName);
   });
 
   test('JSON object has a script', async () => {
-    expect(
-      await page.evaluate(() => {
-        const catObj = {
-          scenes: [
+    const programID = 'programID';
+    const sceneName = 'testscene';
+    const objectName = 'tobject';
+
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName,
+          objectList: [
             {
-              name: 'testscene',
-              objectList: [
+              name: objectName,
+              scriptList: [
                 {
-                  name: 'tobject',
-                  scriptList: [
-                    {
-                      'not-supported': 'yet (takes script from XML)'
-                    }
-                  ]
+                  'not-supported': 'yet (takes script from XML)'
                 }
               ]
             }
           ]
-        };
-        Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-        const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
-        const executeQuery = shareTestContainer.querySelector(
-          '#' + objID + ' #' + objID + '-scripts .catblocks-script svg.catblocks-svg'
-        );
-        return Object.keys(executeQuery).length === 0;
-      })
-    ).toBeTruthy();
+        }
+      ]
+    };
+
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
+
+    const objID = await page.evaluate((pProgramID, pSceneName, pObjectName) => {
+      return Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}-${pObjectName}`);
+    }, programID, sceneName, objectName);
+
+    const scriptContainer = await page.$(`#${objID} #${objID}-scripts .catblocks-script svg.catblocks-svg`);
+    expect(scriptContainer).not.toBeNull();
   });
 
   test('Share test lazy loading of images', async () => {
-    await page.evaluate(() => {
-      const testDisplayName = 'My actor';
-      const catObj = {
-        scenes: [
-          {
-            name: 'testscene',
-            objectList: [
-              {
-                name: 'tobject',
-                lookList: [
-                  {
-                    name: testDisplayName,
-                    fileName: 'My actor or object.png'
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            name: 'testscene2'
-          }
-        ]
-      };
-      Test.Share.renderProgramJSON('programID', shareTestContainer, catObj);
-    });
+    const testDisplayName = 'My actor';
+    const programID = 'programID';
+    const sceneName = 'testscene';
+    const objectName = 'tobject';
 
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName,
+          objectList: [
+            {
+              name: objectName,
+              lookList: [
+                {
+                  name: testDisplayName,
+                  fileName: 'My actor or object.png'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'testscene2'
+        }
+      ]
+    };
+
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
+
+    const [
+      objID,
+      sceneID
+    ] = await page.evaluate((pProgramID, pSceneName, pObjectName) => {
+      return [
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}-${pObjectName}`),
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}`)
+      ];
+    }, programID, sceneName, objectName);
+
+
+    // open scene (clicks first element with class)
     await page.click('.catblocks-scene-header');
-    await page.waitFor(2);
+    // wait for it to show
+    await page.waitForSelector(`#${sceneID}-collapseOne.show`);
 
-    const objID = await page.evaluate(() => {
-      return Test.ShareUtils.generateID('programID-testscene-tobject');
-    });
+    const dataSrc = await page.$eval(`#${objID} #${objID}-looks .catblocks-object-look-item`, x => x.getAttribute('data-src'));
+    const beforeClickSrc = await page.$eval(`#${objID} #${objID}-looks .catblocks-object-look-item`, x => x.getAttribute('src'));
+    expect(beforeClickSrc).toBeNull();
 
-    const dataSrc = await page.evaluate(() => {
-      const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
-      return shareTestContainer
-        .querySelector('#' + objID + ' #' + objID + '-looks .catblocks-object-look-item')
-        .getAttribute('data-src');
-    });
-    const beforeClickSrc = await page.evaluate(() => {
-      const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
-      return shareTestContainer
-        .querySelector('#' + objID + ' #' + objID + '-looks .catblocks-object-look-item')
-        .getAttribute('src');
-    });
+    // open object
+    await page.click(`#${objID}-header`);
+    // wait for tabs to be visible
+    await page.waitForSelector(`#${objID}-tabs`);
 
-    const headerSelector = `#${objID}-header`;
-    // TODO: does not work because this part is not really visible
-    // await page.click(headerSelector);
-    await page.evaluate(sel => {
-      document.querySelector(sel).click();
-    }, headerSelector);
+    // open looks tab
+    await page.click(`#${objID}-looks-tab`);
+    // wait for content to be visible
+    await page.waitForSelector(`#${objID}-looks.show`);
 
-    await page.waitFor(2);
-
-    const afterClickSrc = await page.evaluate(() => {
-      const objID = Test.ShareUtils.generateID('programID-testscene-tobject');
-      return shareTestContainer
-        .querySelector('#' + objID + ' #' + objID + '-looks .catblocks-object-look-item')
-        .getAttribute('src');
-    });
-
-    expect(beforeClickSrc == null && dataSrc === afterClickSrc).toBeTruthy();
+    const afterClickSrc = await page.$eval(`#${objID} #${objID}-looks .catblocks-object-look-item`, x => x.getAttribute('src'));
+    expect(afterClickSrc).toBe(dataSrc);
   });
 
   test('Share render object with magnifying glass in look tab and simulate click to popup image', async () => {
     const testDisplayName = 'My actor';
-    const programName = 'magnifyMe';
+    const programID = 'magnifyMe';
     const sceneName = 'testscene';
     const objectName = 'testobj';
 
-    // render program
-    await page.evaluate(
-      ({ testDisplayName, programName, sceneName, objectName }) => {
-        const catObj = {
-          scenes: [
+    const catObj = {
+      scenes: [
+        {
+          name: sceneName,
+          objectList: [
             {
-              name: sceneName,
-              objectList: [
+              name: objectName,
+              lookList: [
                 {
-                  name: objectName,
-                  lookList: [
-                    {
-                      name: testDisplayName,
-                      fileName: 'My actor or object.png'
-                    }
-                  ]
+                  name: testDisplayName,
+                  fileName: 'My actor or object.png'
                 }
               ]
-            },
-            {
-              name: 'testscene2'
             }
           ]
-        };
-        Test.Share.renderProgramJSON(programName, shareTestContainer, catObj);
-      },
-      { testDisplayName, programName, sceneName, objectName }
-    );
+        },
+        {
+          name: 'testscene2'
+        }
+      ]
+    };
 
-    // open scene
+    await page.evaluate((pCatObj, pProgramID) => {
+      Test.Share.renderProgramJSON(pProgramID, shareTestContainer, pCatObj);
+    }, catObj, programID);
+
+    const [
+      objID,
+      sceneID,
+      expectedID
+    ] = await page.evaluate((pProgramID, pSceneName, pObjectName, pTestDisplayName) => {
+      const objID = Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}-${pObjectName}`);
+      return [
+        objID,
+        Test.ShareUtils.generateID(`${pProgramID}-${pSceneName}`),
+        Test.ShareUtils.generateID(`${objID}-${pTestDisplayName}`) + '-imgID'
+      ];
+    }, programID, sceneName, objectName, testDisplayName);
+
+    // open scene (clicks first element with class)
     await page.click('.catblocks-scene-header');
-    await page.waitFor(500);
-
-    const { objID, expectedID } = await page.evaluate(
-      ({ testDisplayName, programName, sceneName, objectName }) => {
-        const objID = Test.ShareUtils.generateID(`${programName}-${sceneName}-${objectName}`);
-        const expectedID = Test.ShareUtils.generateID(`${objID}-${testDisplayName}`) + '-imgID';
-        return { objID, expectedID };
-      },
-      { testDisplayName, programName, sceneName, objectName }
-    );
+    // wait for it to show
+    await page.waitForSelector(`#${sceneID}-collapseOne.show`);
 
     const expectedSrc = await page.$eval('#' + objID + ' #' + objID + '-looks .catblocks-object-look-item', node =>
       node.getAttribute('data-src')
@@ -685,17 +693,16 @@ describe('Share catroid program rendering tests', () => {
       '#' + objID + ' #' + objID + '-looks .catblocks-object-look-item',
       node => node.id
     );
+    expect(itemContainerID).toBe(expectedID);
+
     const searchContainerInnerHTML = await page.$eval(
       '#' + objID + ' #' + objID + '-looks .search',
       node => node.innerHTML
     );
-    const previewSrc = await page.$eval('.imagepreview', node => node.getAttribute('src'));
+    expect(searchContainerInnerHTML).toBe('<i class="material-icons">search</i>');
 
-    const result =
-      itemContainerID === expectedID &&
-      searchContainerInnerHTML === '<i class="material-icons">search</i>' &&
-      previewSrc === expectedSrc;
-    expect(result).toBeTruthy();
+    const previewSrc = await page.$eval('.imagepreview', node => node.getAttribute('src'));
+    expect(previewSrc).toBe(expectedSrc);
   });
 
   test('JSON with one scene', async () => {
@@ -750,7 +757,7 @@ describe('Share catroid program rendering tests', () => {
           shareTestContainer.querySelector('.accordion') !== null &&
           shareTestContainer.querySelector('.catblocks-object .card-header') !== null &&
           shareTestContainer.querySelector('.catblocks-object .card-header').innerHTML ===
-            '<div class="header-title">Background</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>'
+          '<div class="header-title">Background</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>'
         );
       })
     ).toBeTruthy();

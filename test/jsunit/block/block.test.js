@@ -79,7 +79,7 @@ describe('Filesystem Block tests', () => {
           const blockMsgName2 = blockMsg2.substring(6, blockMsg2.length - 1);
           msgArgs.push(BLOCK_MSG_MAPPINGS[blockMsgName2].match(/%\d+/) || []);
         }
-        expect(defArgs.length).toBe(msgArgs.length);
+        expect(defArgs).toHaveLength(msgArgs.length);
       });
     });
   });
@@ -122,8 +122,8 @@ describe('WebView Block tests', () => {
         return window.shallowJSON(Test.Playground.workspace);
       });
       const workspace = JSON.parse(workspaceJSON);
-      const result = workspace != null && workspace instanceof Object;
-      expect(result).toBeTruthy();
+      expect(workspace).not.toBeNull();
+      expect(typeof workspace).toBe('object');
     });
 
     test('Playground blockDB is empty', async () => {
@@ -131,8 +131,7 @@ describe('WebView Block tests', () => {
         return window.shallowJSON(Test.Playground.workspace.blockDB_);
       });
       const blocks = JSON.parse(blocksJSON);
-      const result = Object.keys(blocks).length === 0;
-      expect(result).toBeTruthy();
+      expect(Object.keys(blocks)).toHaveLength(0);
     });
 
     test('Playground toolbox workspace is loaded', async () => {
@@ -140,8 +139,8 @@ describe('WebView Block tests', () => {
         return window.shallowJSON(Test.Toolbox.workspace);
       });
       const workspace = JSON.parse(workspaceJSON);
-      const result = workspace != null && workspace instanceof Object;
-      expect(result).toBeTruthy();
+      expect(workspace).not.toBeNull();
+      expect(typeof workspace).toBe('object');
     });
 
     test('Playground toolbox blockDB is not empty', async () => {
@@ -152,65 +151,41 @@ describe('WebView Block tests', () => {
         return window.shallowJSON(Test.Toolbox.workspace.blockDB_);
       });
 
-      let result = false;
-      try {
-        const block = JSON.parse(blockJSON);
-        result = Object.keys(block).length !== 0;
-      } catch (e) {
-        result = false;
-      }
-      expect(result).toBeTruthy();
+      const block = JSON.parse(blockJSON);
+      expect(Object.keys(block)).not.toHaveLength(0);
     });
 
     test('Blockly loaded all categories', async () => {
       const blockJSON = await page.evaluate(() => {
         return window.shallowJSON(Test.Blockly.Categories);
       });
-      let result = true;
-      try {
-        const blocksCategories = JSON.parse(blockJSON);
-        for (const cat of BLOCK_CATEGORIES) {
-          if (!blocksCategories[cat]) {
-            result = false;
-            break;
-          }
-        }
-      } catch (e) {
-        result = false;
+
+      const blocksCategories = JSON.parse(blockJSON);
+      for (const cat of BLOCK_CATEGORIES) {
+        expect(blocksCategories[cat]).toBeDefined();
       }
-      expect(result).toBeTruthy();
     });
 
     test('Blockly includes all blocks', async () => {
       const blockJSON = await page.evaluate(() => {
         return window.shallowJSON(Test.Blockly.Bricks);
       });
-      let result = true;
 
-      try {
-        const bricks = JSON.parse(blockJSON);
+      const bricks = JSON.parse(blockJSON);
 
-        const allBlocks = (() => {
-          const blocks = [];
-          Object.keys(BLOCKS).forEach(categoryName => {
-            Object.keys(BLOCKS[categoryName]).forEach(blockName => {
-              blocks.push(blockName);
-            });
+      const allBlocks = (() => {
+        const blocks = [];
+        Object.keys(BLOCKS).forEach(categoryName => {
+          Object.keys(BLOCKS[categoryName]).forEach(blockName => {
+            blocks.push(blockName);
           });
-          return blocks;
-        })();
+        });
+        return blocks;
+      })();
 
-        for (const blockName of allBlocks) {
-          if (bricks[blockName] == null) {
-            result = false;
-            break;
-          }
-        }
-      } catch (e) {
-        result = false;
+      for (const blockName of allBlocks) {
+        expect(bricks[blockName]).toBeDefined();
       }
-
-      expect(result).toBeTruthy();
     });
 
     test('All Blocks exists in Toolbox', async () => {
@@ -224,8 +199,8 @@ describe('WebView Block tests', () => {
         return blocks;
       })();
 
-      const result = await page.evaluate(allBlocks => {
-        for (const blockName of allBlocks) {
+      const result = await page.evaluate(pAllBlocks => {
+        for (const blockName of pAllBlocks) {
           if (Test.Toolbox.workspace.getBlocksByType(blockName).length === 0) {
             return false;
           }
@@ -251,9 +226,7 @@ describe('WebView Block tests', () => {
         return codes;
       }, imgHref);
 
-      const result = statusCodes.includes(404);
-
-      expect(result).toBeFalsy();
+      expect(statusCodes.includes(404)).toBeFalsy();
     });
 
     test('formula blocks (without child) are rendered properly', async () => {
@@ -271,8 +244,9 @@ describe('WebView Block tests', () => {
 
         return [block.getFieldValue(), refValue, value];
       });
-      const result = blockFieldValue === blockText && refValue === value;
-      expect(result).toBeTruthy();
+
+      expect(blockFieldValue).toBe(blockText);
+      expect(refValue).toBe(value);
     });
 
     test('formula blocks (with left child) are rendered properly', async () => {
@@ -292,8 +266,9 @@ describe('WebView Block tests', () => {
         const value = block.inputList[0].fieldRow[1].getValue().toString();
         return [block.getFieldValue(), value];
       }, valueToSet);
-      const result = blockFieldValue === blockText && valueToSet === value;
-      expect(result).toBeTruthy();
+
+      expect(blockFieldValue).toBe(blockText);
+      expect(valueToSet).toBe(value);
     });
 
     test('formula blocks (with left and right child) are rendered properly', async () => {
@@ -316,8 +291,9 @@ describe('WebView Block tests', () => {
         //check if field text matches when block is in workspace
         return [value, block.svgGroup_.textContent.replace(/\s/g, '')];
       }, valueToSet);
-      const result = valueToSet === value && desiredBlockText === blockContent;
-      expect(result).toBeTruthy();
+
+      expect(valueToSet).toBe(value);
+      expect(desiredBlockText).toBe(blockContent);
     });
 
     test('check if zebra is working properly', async () => {
@@ -330,24 +306,36 @@ describe('WebView Block tests', () => {
         return [topBlock.colour_, topBlock.childBlocks_[0].colour_, topBlock.childBlocks_[0].childBlocks_[0].colour_];
       });
 
-      const result = color1 === color3 && color1 !== color2;
-
-      expect(result).toBeTruthy();
+      expect(color1).toBe(color3);
+      expect(color1).not.toBe(color2);
     });
 
     test('Block arguments are rendered properly', async () => {
+      // checks for same argument count of toolbox blocks and BLOCKS
+      expect.hasAssertions();
+      
       const allRenderedBlocksJSON = await page.evaluate(() => {
         const blocks = Test.Toolbox.workspace.getAllBlocks();
 
         const returnArray = [];
         for (const block of blocks) {
-          returnArray.push(block.svgGroup_.querySelectorAll('g.blocklyEditableText'));
+          const currentObj = block.svgGroup_.querySelectorAll('g.blocklyEditableText');
+          const parameterArray = [];
+
+          // extract arguments of blocks
+          for (const node of currentObj) {
+            parameterArray.push({ textContent: node.textContent });
+          }
+
+          returnArray.push(parameterArray);
         }
+
         return window.shallowJSON(returnArray);
       });
 
-      let result = true;
       const allRenderedBlocks = JSON.parse(allRenderedBlocksJSON);
+
+      let result = true;
       for (const renderedBlock of allRenderedBlocks) {
         let returnStatus = false;
         for (const categoryName in BLOCKS) {
@@ -397,6 +385,7 @@ describe('WebView Block tests', () => {
                 for (let argIndex = 0; argIndex < renderedBlock.length; argIndex++) {
                   const jsArgument = allJsArguments[argIndex].toString().trim().replace(/\s/g, ' ');
                   const renderedArgument = renderedBlock[argIndex].textContent.trim().replace(/\s/g, ' ');
+
                   if (jsArgument !== renderedArgument) {
                     check = false;
                   }

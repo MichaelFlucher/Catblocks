@@ -29,13 +29,17 @@ const CATBLOCKS_LOCALES = utils.readFileSync(utils.PATHS.CATBLOCKS_LOCALES).toSt
  */
 describe('Filesystem msg tests', () => {
   test('JSON exists for catroid_strings xml file', () => {
+    expect.hasAssertions();
+
     CATROID_MSGS.forEach(catMsg => {
       const langName = catMsg.replace('values-', '').replace('-', '_').replace('/', '').replace('_r', '_');
-      expect(CATBLOCKS_MSGS.includes(`${langName}.json`)).toBeTruthy();
+      expect(CATBLOCKS_MSGS).toEqual(expect.arrayContaining([`${langName}.json`]));
     });
   });
 
   test('JSON includes all i18n definitions', () => {
+    expect.hasAssertions();
+
     CATBLOCKS_MSGS.forEach(lang => {
       const langKeys = JSON.parse(utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${lang}`));
       Object.keys(BLOCK_MSG_MAPPINGS).forEach(key => {
@@ -47,19 +51,14 @@ describe('Filesystem msg tests', () => {
   });
 
   test('Lang JSON file linked in CatblocksMsg.js', () => {
-    const langs = JSON.parse(CATBLOCKS_LOCALES);
+    expect.hasAssertions();
 
-    let result = true;
+    const langs = JSON.parse(CATBLOCKS_LOCALES);
 
     for (const langfile of CATBLOCKS_MSGS) {
       const lang = langfile.split('.')[0];
-      result = langs[lang] != null;
-      if (!result) {
-        break;
-      }
+      expect(langs[lang]).toBeDefined();
     }
-
-    expect(result).toBeTruthy();
   });
 });
 
@@ -92,6 +91,8 @@ describe('Webview test', () => {
   });
 
   test('en Messages assigned to Blockly', async () => {
+    expect.hasAssertions();
+
     const languageToTest = 'en';
     const languageObject = JSON.parse(utils.readFileSync(`${utils.PATHS.CATBLOCKS_MSGS}${languageToTest}.json`));
 
@@ -99,7 +100,6 @@ describe('Webview test', () => {
       return Test.Playground.setLocale(pLanguage);
     }, languageToTest);
 
-    let result = false;
     const [toolboxBlocksJSON, blocklyBlocksJSON] = await page.evaluate(() => {
       const toolboxBlocks = Test.Toolbox.workspace.getAllBlocks();
       const blockArray = [];
@@ -144,13 +144,9 @@ describe('Webview test', () => {
       for (let idx = 0; idx < block.msgBlockParts.length; idx++) {
         const testString = block.msgBlockParts[idx];
         const refString = msgDefParts[idx].replace(/ /g, '');
-        if (!refString.startsWith(testString)) {
-          result = true;
-        }
+        expect(refString).toMatch(testString);
       }
     }
-
-    expect(result).toBeFalsy();
   });
 
   test('Change lang from >en< to >de< works properly', async () => {
@@ -165,7 +161,6 @@ describe('Webview test', () => {
       return Test.Playground.setLocale(pLanguage);
     }, languageToTest);
 
-    let result = false;
     const [toolboxBlocksJSON, blocklyBlocksJSON] = await page.evaluate(() => {
       const toolboxBlocks = Test.Toolbox.workspace.getAllBlocks();
       const blockArray = [];
@@ -210,13 +205,9 @@ describe('Webview test', () => {
       for (let idx = 0; idx < block.msgBlockParts.length; idx++) {
         const testString = block.msgBlockParts[idx];
         const refString = msgDefParts[idx].replace(/ /g, '');
-        if (!refString.startsWith(testString)) {
-          result = true;
-        }
+        expect(refString).toMatch(testString);
       }
     }
-
-    expect(result).toBeFalsy();
   });
 
   test('Changing language on share page is working', async () => {
@@ -245,11 +236,8 @@ describe('Webview test', () => {
       return testBlock.getFieldValue();
     });
 
-    const result =
-      defaultLanguageObject['CONTROL_WAIT'].startsWith(defaultBlockValue) &&
-      testLanguageObject['CONTROL_WAIT'].startsWith(testBlockValue);
-
-    expect(result).toBeTruthy();
+    expect(defaultLanguageObject['CONTROL_WAIT']).toMatch(defaultBlockValue);
+    expect(testLanguageObject['CONTROL_WAIT']).toMatch(testBlockValue);
   });
 });
 
@@ -268,8 +256,8 @@ describe('share displays language of UI elements correctly', () => {
       return Test.Blockly.CatblocksMsgs.setLocale(pDefaultLanguage);
     }, defaultLanguage);
 
-    const result = await executeShareLanguageUITest(defaultLanguageObject);
-    expect(result).toBeTruthy();
+    expect.assertions(1);
+    await executeShareLanguageUITest(defaultLanguageObject);
   });
 
   test('check >de< language of an simple rendered program', async () => {
@@ -279,8 +267,8 @@ describe('share displays language of UI elements correctly', () => {
       return Test.Blockly.CatblocksMsgs.setLocale(pTestLanguage);
     }, testLanguage);
 
-    const result = await executeShareLanguageUITest(testLanguageObject);
-    expect(result).toBeTruthy();
+    expect.assertions(1);
+    await executeShareLanguageUITest(testLanguageObject);
   });
 
   test('check if unknown >es_US< language is handled as >es<', async () => {
@@ -293,8 +281,8 @@ describe('share displays language of UI elements correctly', () => {
       return Test.Blockly.CatblocksMsgs.setLocale(pTestLanguage);
     }, testLanguage);
 
-    const result = await executeShareLanguageUITest(fallbackLanguageObject);
-    expect(result).toBeTruthy();
+    expect.assertions(1);
+    await executeShareLanguageUITest(fallbackLanguageObject);
   });
 
   test('check if invalid >de_XY< language is handled as >de<', async () => {
@@ -307,8 +295,8 @@ describe('share displays language of UI elements correctly', () => {
       return Test.Blockly.CatblocksMsgs.setLocale(pTestLanguage);
     }, testLanguage);
 
-    const result = await executeShareLanguageUITest(fallbackLanguageObject);
-    expect(result).toBeTruthy();
+    expect.assertions(1);
+    await executeShareLanguageUITest(fallbackLanguageObject);
   });
 
   test('check if >xy_za< language is handled as default >en<', async () => {
@@ -321,8 +309,8 @@ describe('share displays language of UI elements correctly', () => {
       return Test.Blockly.CatblocksMsgs.setLocale(pTestLanguage);
     }, testLanguage);
 
-    const result = await executeShareLanguageUITest(fallbackLanguageObject);
-    expect(result).toBeTruthy();
+    expect.assertions(1);
+    await executeShareLanguageUITest(fallbackLanguageObject);
   });
 
   async function executeShareLanguageUITest(languageObject) {
@@ -373,7 +361,6 @@ describe('share displays language of UI elements correctly', () => {
 
     // nbsp to space
     startBrickTextContent = startBrickTextContent.replace(new RegExp(String.fromCharCode(160), 'g'), ' ');
-
-    return startBrickTextContent == languageObject['EVENT_WHENSCENESTARTS'];
+    expect(startBrickTextContent).toBe(languageObject['EVENT_WHENSCENESTARTS']);
   }
 });

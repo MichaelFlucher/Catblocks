@@ -33,14 +33,11 @@ describe('Parser catroid program tests', () => {
       try {
         Test.Parser.convertProgramToJSONDebug(pXML);
       } catch (e) {
-        if (e.message === 'Found program version 0.993, minimum supported is 0.9994') {
-          return true;
-        }
+        return e.message;
       }
-      return false;
     }, xmlString);
 
-    expect(result).toBeTruthy();
+    expect(result).toBe('Found program version 0.993, minimum supported is 0.9994');
   });
 
   test('Recognizes supported program version', async () => {
@@ -62,13 +59,16 @@ describe('Parser catroid program tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON != null &&
-      programJSON.scenes != null &&
-      programJSON.scenes[0].name != null &&
-      programJSON.scenes[0].objectList != null;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            name: expect.anything(),
+            objectList: expect.anything()
+          })
+        ])
+      })
+    );
   });
 
   test('Handle empty program properly', async () => {
@@ -85,9 +85,11 @@ describe('Parser catroid program tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result = programJSON != null && programJSON.scenes != null;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.anything()
+      })
+    );
   });
 
   test('Handle empty single scene properly', async () => {
@@ -110,13 +112,16 @@ describe('Parser catroid program tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON.scenes != null &&
-      programJSON.scenes.length === 1 &&
-      programJSON.scenes[0].name === sceneName &&
-      programJSON.scenes[0].objectList != null;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            name: sceneName,
+            objectList: expect.anything()
+          })
+        ])
+      })
+    );
   });
 
   test('Handle multiple empty scenes properly', async () => {
@@ -144,15 +149,20 @@ describe('Parser catroid program tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON.scenes != null &&
-      programJSON.scenes.length === 2 &&
-      programJSON.scenes[0].name === sceneName1 &&
-      programJSON.scenes[1].name === sceneName2 &&
-      programJSON.scenes[0].objectList != null &&
-      programJSON.scenes[1].objectList != null;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            name: sceneName1,
+            objectList: expect.anything()
+          }),
+          expect.objectContaining({
+            name: sceneName2,
+            objectList: expect.anything()
+          })
+        ])
+      })
+    );
   });
 
   test('Handle single empty object properly', async () => {
@@ -183,15 +193,20 @@ describe('Parser catroid program tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON.scenes != null &&
-      programJSON.scenes.length === 1 &&
-      programJSON.scenes[0].name === sceneName &&
-      programJSON.scenes[0].objectList != null &&
-      programJSON.scenes[0].objectList.length === 1 &&
-      programJSON.scenes[0].objectList[0].name === objectName;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            name: sceneName,
+            objectList: expect.arrayContaining([
+              expect.objectContaining({
+                name: objectName
+              })
+            ])
+          })
+        ])
+      })
+    );
   });
 
   test('Handle single empty object in same scene properly', async () => {
@@ -228,16 +243,23 @@ describe('Parser catroid program tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON.scenes != null &&
-      programJSON.scenes.length === 1 &&
-      programJSON.scenes[0].name === sceneName &&
-      programJSON.scenes[0].objectList != null &&
-      programJSON.scenes[0].objectList.length === 2 &&
-      programJSON.scenes[0].objectList[0].name === objectName1 &&
-      programJSON.scenes[0].objectList[1].name === objectName2;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            name: sceneName,
+            objectList: expect.arrayContaining([
+              expect.objectContaining({
+                name: objectName1
+              }),
+              expect.objectContaining({
+                name: objectName2
+              })
+            ])
+          })
+        ])
+      })
+    );
   });
 
   test('Handle single empty object in multiple scenes properly', async () => {
@@ -281,19 +303,28 @@ describe('Parser catroid program tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON.scenes != null &&
-      programJSON.scenes.length === 2 &&
-      programJSON.scenes[0].name === sceneName1 &&
-      programJSON.scenes[1].name === sceneName2 &&
-      programJSON.scenes[0].objectList != null &&
-      programJSON.scenes[1].objectList != null &&
-      programJSON.scenes[0].objectList.length === 1 &&
-      programJSON.scenes[1].objectList.length === 1 &&
-      programJSON.scenes[0].objectList[0].name === objectName1 &&
-      programJSON.scenes[1].objectList[0].name === objectName2;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            name: sceneName1,
+            objectList: expect.arrayContaining([
+              expect.objectContaining({
+                name: objectName1
+              })
+            ])
+          }),
+          expect.objectContaining({
+            name: sceneName2,
+            objectList: expect.arrayContaining([
+              expect.objectContaining({
+                name: objectName2
+              })
+            ])
+          })
+        ])
+      })
+    );
   });
 
   test('Handle single empty script properly', async () => {
@@ -330,18 +361,25 @@ describe('Parser catroid program tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON.scenes != null &&
-      programJSON.scenes.length === 1 &&
-      programJSON.scenes[0].name === sceneName &&
-      programJSON.scenes[0].objectList != null &&
-      programJSON.scenes[0].objectList.length === 1 &&
-      programJSON.scenes[0].objectList[0].name === objectName &&
-      programJSON.scenes[0].objectList[0].scriptList != null &&
-      programJSON.scenes[0].objectList[0].scriptList.length === 1 &&
-      programJSON.scenes[0].objectList[0].scriptList[0].name === scriptName;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            name: sceneName,
+            objectList: expect.arrayContaining([
+              expect.objectContaining({
+                name: objectName,
+                scriptList: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: scriptName
+                  })
+                ])
+              })
+            ])
+          })
+        ])
+      })
+    );
   });
 });
 
@@ -394,9 +432,7 @@ describe('Catroid to Catblocks parser tests', () => {
       return formulaMap.entries().next().value.toString();
     }, xmlString);
 
-    const result = formula.includes('60&.0');
-
-    expect(result).toBeTruthy();
+    expect(formula).toMatch('60&.0');
   });
 
   test('LookList reference not within the same object', async () => {
@@ -444,12 +480,24 @@ describe('Catroid to Catblocks parser tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      objectName === programJSON.scenes[0].objectList[0].name &&
-      lookName === programJSON.scenes[0].objectList[0].lookList[0].name &&
-      lookFileName === programJSON.scenes[0].objectList[0].lookList[0].fileName;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            objectList: expect.arrayContaining([
+              expect.objectContaining({
+                lookList: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: lookName,
+                    fileName: lookFileName
+                  })
+                ])
+              })
+            ])
+          })
+        ])
+      })
+    );
   });
 
   test('SoundList reference not within the same object', async () => {
@@ -497,12 +545,25 @@ describe('Catroid to Catblocks parser tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON.scenes[0].objectList[0].name === objectName &&
-      programJSON.scenes[0].objectList[0].soundList[0].name === soundName &&
-      programJSON.scenes[0].objectList[0].soundList[0].fileName === soundFileName;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            objectList: expect.arrayContaining([
+              expect.objectContaining({
+                name: objectName,
+                soundList: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: soundName,
+                    fileName: soundFileName
+                  })
+                ])
+              })
+            ])
+          })
+        ])
+      })
+    );
   });
 
   test('Test if no value is used if no nodeValue is given', async () => {
@@ -567,11 +628,8 @@ describe('Catroid to Catblocks parser tests', () => {
       ];
     }, xmlString);
 
-    const result =
-      programJSON.scenes[0].objectList[1].scriptList[0].brickList[0].name === brickName &&
-      formulaString.includes(`${val1}  ${val2}`);
-
-    expect(result).toBeTruthy();
+    expect(programJSON.scenes[0].objectList[1].scriptList[0].brickList[0].name).toBe(brickName);
+    expect(formulaString).toMatch(`${val1}  ${val2}`);
   });
 
   test('Test if parser converts catroid script properly', async () => {
@@ -620,12 +678,33 @@ describe('Catroid to Catblocks parser tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON.scenes[0].objectList[0].scriptList[0].name === scriptName &&
-      programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === brick1 &&
-      programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].loopOrIfBrickList[0].name === brick2;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            objectList: expect.arrayContaining([
+              expect.objectContaining({
+                scriptList: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: scriptName,
+                    brickList: expect.arrayContaining([
+                      expect.objectContaining({
+                        name: brick1,
+                        loopOrIfBrickList: expect.arrayContaining([
+                          expect.objectContaining({
+                            name: brick2
+                          })
+                        ])
+                      })
+                    ])
+                  })
+                ])
+              })
+            ])
+          })
+        ])
+      })
+    );
   });
 
   test('Test to check, if the content in the repeat block is right', async () => {
@@ -683,13 +762,38 @@ describe('Catroid to Catblocks parser tests', () => {
       return Test.Parser.convertProgramToJSONDebug(pXML);
     }, xmlString);
 
-    const result =
-      programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === playsoundBrick &&
-      programJSON.scenes[0].objectList[0].scriptList[0].brickList[1].name === repeatBrick &&
-      programJSON.scenes[0].objectList[0].scriptList[0].brickList[1].loopOrIfBrickList[0].name === setBackgroundBrick &&
-      programJSON.scenes[0].objectList[0].scriptList[0].brickList[1].loopOrIfBrickList[1].name === waitBrick;
-
-    expect(result).toBeTruthy();
+    expect(programJSON).toEqual(
+      expect.objectContaining({
+        scenes: expect.arrayContaining([
+          expect.objectContaining({
+            objectList: expect.arrayContaining([
+              expect.objectContaining({
+                scriptList: expect.arrayContaining([
+                  expect.objectContaining({
+                    brickList: expect.arrayContaining([
+                      expect.objectContaining({
+                        name: playsoundBrick
+                      }),
+                      expect.objectContaining({
+                        name: repeatBrick,
+                        loopOrIfBrickList: expect.arrayContaining([
+                          expect.objectContaining({
+                            name: setBackgroundBrick
+                          }),
+                          expect.objectContaining({
+                            name: waitBrick
+                          })
+                        ])
+                      })
+                    ])
+                  })
+                ])
+              })
+            ])
+          })
+        ])
+      })
+    );
   });
 
   describe('Spinner parsing test', () => {
@@ -786,12 +890,30 @@ describe('Catroid to Catblocks parser tests', () => {
         ];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === droneBrick &&
-        formulaSize === 1 &&
-        formulaString.includes(invalidI18N);
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: droneBrick
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(formulaSize).toBe(1);
+      expect(formulaString).toMatch(invalidI18N);
     });
 
     test('Handle non-exiting spinner value', async () => {
@@ -833,10 +955,29 @@ describe('Catroid to Catblocks parser tests', () => {
         ];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === droneBrick && formula == null;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: droneBrick
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(formula).toBeNull();
     });
   });
 
@@ -844,7 +985,7 @@ describe('Catroid to Catblocks parser tests', () => {
     test('Test of local uservariable parsing', async () => {
       const variableBrick = 'SetVariableBrick';
       const variableName = 'VARIABLE';
-      const firstValue = 0;
+      const firstValue = '0';
       const userVarialbe = 'tUserVariable';
 
       const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -905,22 +1046,36 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        variableBrick === programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name &&
-        mapKeys.length === 2 &&
-        mapValues.length === 2 &&
-        mapKeys[0] === variableName &&
-        mapValues[0] == firstValue &&
-        mapKeys[1] === 'DROPDOWN' &&
-        mapValues[1] === userVarialbe;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: variableBrick
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([variableName, 'DROPDOWN']);
+      expect(mapValues).toEqual([firstValue, userVarialbe]);
     });
 
     test('Test of local empty name uservariable parsing', async () => {
       const variableBrick = 'SetVariableBrick';
       const variableName = 'VARIABLE';
-      const firstValue = 0;
+      const firstValue = '0';
 
       const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
       <program>
@@ -980,22 +1135,36 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === variableBrick &&
-        mapKeys.length === 2 &&
-        mapValues.length === 2 &&
-        mapKeys[0] === variableName &&
-        mapValues[0] == firstValue &&
-        mapKeys[1] === 'DROPDOWN' &&
-        mapValues[1].length === 0;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: variableBrick
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([variableName, 'DROPDOWN']);
+      expect(mapValues).toEqual([firstValue, ""]);
     });
 
     test('Test of local uservariable parsing without name tag', async () => {
       const variableBrick = 'SetVariableBrick';
       const variableName = 'VARIABLE';
-      const firstValue = 0;
+      const firstValue = '0';
 
       const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
       <program>
@@ -1055,22 +1224,36 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === variableBrick &&
-        mapKeys.length === 2 &&
-        mapValues.length === 2 &&
-        mapKeys[0] === variableName &&
-        mapValues[0] == firstValue &&
-        mapKeys[1] === 'DROPDOWN' &&
-        mapValues[1].length === 0;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: variableBrick
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([variableName, 'DROPDOWN']);
+      expect(mapValues).toEqual([firstValue, ""]);
     });
 
     test('Test of remote uservariable parsing', async () => {
       const variableBrick = 'SetVariableBrick';
       const variableName = 'VARIABLE';
-      const firstValue = 0;
+      const firstValue = '0';
       const userVariable = 'tUserVariable';
 
       const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -1142,22 +1325,36 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === variableBrick &&
-        mapKeys.length === 2 &&
-        mapValues.length === 2 &&
-        mapKeys[0] === variableName &&
-        mapValues[0] == firstValue &&
-        mapKeys[1] === 'DROPDOWN' &&
-        mapValues[1] === userVariable;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: variableBrick
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([variableName, 'DROPDOWN']);
+      expect(mapValues).toEqual([firstValue, userVariable]);
     });
 
     test('Test of remote empty name uservariable parsing', async () => {
       const variableBrick = 'SetVariableBrick';
       const variableName = 'VARIABLE';
-      const firstValue = 0;
+      const firstValue = '0';
 
       const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
       <program>
@@ -1228,22 +1425,36 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === variableBrick &&
-        mapKeys.length === 2 &&
-        mapValues.length === 2 &&
-        mapKeys[0] === variableName &&
-        mapValues[0] == firstValue &&
-        mapKeys[1] === 'DROPDOWN' &&
-        mapValues[1].length === 0;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: variableBrick
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([variableName, 'DROPDOWN']);
+      expect(mapValues).toEqual([firstValue, ""]);
     });
 
     test('Test of remote uservariable parsing without name tag', async () => {
       const variableBrick = 'SetVariableBrick';
       const variableName = 'VARIABLE';
-      const firstValue = 0;
+      const firstValue = '0';
 
       const xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
       <program>
@@ -1314,16 +1525,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === variableBrick &&
-        mapKeys.length === 2 &&
-        mapValues.length === 2 &&
-        mapKeys[0] === variableName &&
-        mapValues[0] == firstValue &&
-        mapKeys[1] === 'DROPDOWN' &&
-        mapValues[1].length === 0;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: variableBrick
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([variableName, 'DROPDOWN']);
+      expect(mapValues).toEqual([firstValue, ""]);
     });
 
     test('Test if parser handles formula operator properly', async () => {
@@ -1391,14 +1616,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === variableBrick &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === variableName &&
-        mapValues[0] === `${firstValue} = ${secondValue}`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: variableBrick
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([variableName]);
+      expect(mapValues).toEqual([`${firstValue} = ${secondValue}`]);
     });
   });
 
@@ -1492,14 +1733,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `${first} × (${second} ÷ (${third} + ${fourth}))`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`${first} × (${second} ÷ (${third} + ${fourth}))`]);
     });
 
     test('Formula with left sided brackets', async () => {
@@ -1591,14 +1848,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `((${first} + ${second}) × ${third}) ÷ ${fourth}`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`((${first} + ${second}) × ${third}) ÷ ${fourth}`]);
     });
 
     test('Formula with both sided brackets', async () => {
@@ -1690,14 +1963,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `(${first} × ${second}) + (${third} × ${fourth})`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`(${first} × ${second}) + (${third} × ${fourth})`]);
     });
   });
 
@@ -1771,14 +2060,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `square root(${first}) × ${second}`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`square root(${first}) × ${second}`]);
     });
 
     test('Single value like sin function with logic', async () => {
@@ -1850,14 +2155,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `sine(${first}) > ${second}`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`sine(${first}) > ${second}`]);
     });
 
     test('Two single values like sin plus cos', async () => {
@@ -1933,14 +2254,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `cosine(${first}) + sine(${second})`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`cosine(${first}) + sine(${second})`]);
     });
 
     test('Double value like contains', async () => {
@@ -2008,14 +2345,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `contains(${first}, ${second})`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`contains(${first}, ${second})`]);
     });
 
     test('Sensor action in formula', async () => {
@@ -2081,14 +2434,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `touches finger + true`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`touches finger + true`]);
     });
 
     test('UserList in formula', async () => {
@@ -2146,14 +2515,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `*${first}*`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`*${first}*`]);
     });
 
     test('UserVariable in formula', async () => {
@@ -2211,14 +2596,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `"${first}"`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`"${first}"`]);
     });
 
     test('String in formula', async () => {
@@ -2286,14 +2687,30 @@ describe('Catroid to Catblocks parser tests', () => {
         return [programJSON, mapKeys, mapValues];
       }, xmlString);
 
-      const result =
-        programJSON.scenes[0].objectList[0].scriptList[0].brickList[0].name === blockName &&
-        mapKeys.length === 1 &&
-        mapValues.length === 1 &&
-        mapKeys[0] === categoryName &&
-        mapValues[0] === `join('${first}', '${second}')`;
+      expect(programJSON).toEqual(
+        expect.objectContaining({
+          scenes: expect.arrayContaining([
+            expect.objectContaining({
+              objectList: expect.arrayContaining([
+                expect.objectContaining({
+                  scriptList: expect.arrayContaining([
+                    expect.objectContaining({
+                      brickList: expect.arrayContaining([
+                        expect.objectContaining({
+                          name: blockName
+                        })
+                      ])
+                    })
+                  ])
+                })
+              ])
+            })
+          ])
+        })
+      );
 
-      expect(result).toBeTruthy();
+      expect(mapKeys).toEqual([categoryName]);
+      expect(mapValues).toEqual([`join('${first}', '${second}')`]);
     });
   });
 });

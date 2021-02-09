@@ -313,7 +313,7 @@ describe('WebView Block tests', () => {
     test('Block arguments are rendered properly', async () => {
       // checks for same argument count of toolbox blocks and BLOCKS
       expect.hasAssertions();
-      
+
       const allRenderedBlocksJSON = await page.evaluate(() => {
         const blocks = Test.Toolbox.workspace.getAllBlocks();
 
@@ -335,7 +335,6 @@ describe('WebView Block tests', () => {
 
       const allRenderedBlocks = JSON.parse(allRenderedBlocksJSON);
 
-      let result = true;
       for (const renderedBlock of allRenderedBlocks) {
         let returnStatus = false;
         for (const categoryName in BLOCKS) {
@@ -405,13 +404,8 @@ describe('WebView Block tests', () => {
           }
         }
 
-        if (!returnStatus) {
-          result = false;
-          break;
-        }
+        expect(returnStatus).toBeTruthy();
       }
-
-      expect(result).toBeTruthy();
     });
   });
 });

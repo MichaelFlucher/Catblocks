@@ -432,7 +432,7 @@ describe('Catroid to Catblocks parser tests', () => {
       return formulaMap.entries().next().value.toString();
     }, xmlString);
 
-    expect(formula).toMatch('60&.0');
+    expect(formula).toMatch('SIZE,60&');
   });
 
   test('LookList reference not within the same object', async () => {

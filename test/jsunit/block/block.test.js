@@ -33,6 +33,11 @@ describe('Filesystem Block tests', () => {
       Object.keys(BLOCKS[categoryName]).forEach(blockName => {
         const block = BLOCKS[categoryName][blockName];
         const blockMsg = block.message0;
+
+        if (blockName == 'EmptyScript') {
+          return blockMsg == ' ';
+        }
+
         const blockMsgName = blockMsg.substring(6, blockMsg.length - 1);
         // verify if it exists
         expect(BLOCK_MSG_MAPPINGS[blockMsgName]).not.toBeUndefined();
@@ -62,6 +67,11 @@ describe('Filesystem Block tests', () => {
       Object.keys(BLOCKS[categoryName]).forEach(blockName => {
         const block = BLOCKS[categoryName][blockName];
         const blockMsg = block.message0;
+
+        if (blockName == 'EmptyScript') {
+          return blockMsg == ' ';
+        }
+
         const blockMsgName = blockMsg.substring(6, blockMsg.length - 1);
 
         const defArgs = Object.keys(block).filter(key => {
